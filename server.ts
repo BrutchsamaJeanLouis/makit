@@ -87,10 +87,19 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
       next(e);
     }
   });
-  const port = process.env.PORT || 7456;
+  const port = process.env.SERVER_PORT || 8080;
   app.listen(Number(port), "0.0.0.0", () => {
-    console.log(`App is listening on http://localhost:${port}`);
+    console.log(`App is listening on http://localhost:${port} with environment >> ${process.env.NODE_ENV}`);
   });
 }
 
-createServer();
+
+if (process.env.NODE_ENV) {
+  require('dotenv').config({
+    path: path.join(__dirname, `./.env.${process.env.NODE_ENV}`)
+  })
+  createServer();
+} else {
+  console.error('No NODE_ENV provided please provide an environment with your script command')
+  process.exit();
+}
