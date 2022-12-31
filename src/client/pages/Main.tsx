@@ -4,6 +4,14 @@ import { useAppContext } from "../Context";
 
 const Main = () => {
   const { name, setName } = useAppContext();
+
+  const fetchTest = () => {
+    fetch('/api/test')
+      .then(res => res)
+      .then(res => console.log(res))
+      .catch(err => console.log(err));
+  };
+
   return (
     <div className="flex bg-white-100 font-sans items-center flex-col justify-between h-screen">
       <div className="flex items-center flex-col pt-10">
@@ -17,6 +25,9 @@ const Main = () => {
           style={{ background: "#8080802e" }}
           className="focus:ring-indigo-500 focus:border-indigo-500 block w-full text-2xl border-gray-300 rounded-md p-2"
         />
+        <form method="GET" action="/api/test">
+          <button type="submit">Call /api/test</button>
+        </form>
       </div>
       <Footer />
     </div>
