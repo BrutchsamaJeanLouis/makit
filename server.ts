@@ -9,6 +9,24 @@ const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
 
 const resolve = (p: string) => path.resolve(__dirname, p);
 
+// Init Models
+import User from "./src/database/models/user";
+import Project from "./src/database/models/project";
+import Location from "./src/database/models/location";
+import Rating from "./src/database/models/rating";
+import Fund from "./src/database/models/fund";
+import Media from "./src/database/models/media";
+import Comment from "./src/database/models/comment";
+async function initialiseModels() {
+  await User.sync(); // const used for authentication
+  await Project.sync();
+  await Location.sync();
+  await Rating.sync();
+  await Fund.sync();
+  await Media.sync();
+  await Comment.sync();
+}
+
 const getStyleSheets = async () => {
   const assetpath = resolve("dist/assets");
   const files = await fs.readdir(assetpath);
@@ -29,7 +47,7 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
   const vite = await createViteServer({
     server: { middlewareMode: true },
     appType: "custom",
-    logLevel: isTest ? "error" : "info",
+    logLevel: isTest ? "error" : "info"
   });
 
   // use vite's connect instance as middleware
@@ -38,14 +56,14 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
   const requestHandler = express.static(resolve("assets"));
   app.use(requestHandler);
   app.use("/assets", requestHandler);
-  app.use("/api", require("./src/server/routes/api"))
+  app.use("/api", require("./src/server/routes/api"));
 
   if (isProd) {
     app.use(compression());
     app.use(
       serveStatic(resolve("dist/client"), {
-        index: false,
-      }),
+        index: false
+      })
     );
   }
   const stylesheets = getStyleSheets();
@@ -94,13 +112,15 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
   });
 }
 
-
 if (process.env.NODE_ENV) {
-  require('dotenv').config({
+  require("dotenv").config({
     path: path.join(__dirname, `./.env.${process.env.NODE_ENV}`)
-  })
-  createServer();
+  });
+  initialiseModels()
+    .then(() => createServer())
+    .catch(() => createServer());
+  // createServer();
 } else {
-  console.error('No NODE_ENV provided please provide an environment with your script command')
+  console.error("No NODE_ENV provided please provide an environment with your script command");
   process.exit();
 }
