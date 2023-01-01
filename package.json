@@ -23,9 +23,10 @@
     "clean": "rimraf dist/",
     "copy-files": "copyfiles static/* dist/assets && copyfiles index.html dist && copyfiles -f dist/client/assets/* dist/assets",
     "format": "prettier --write .",
-    "copyDB": "cd ./src/database && npx sequelize-cli migration:generate --name init_db",
-    "seedDB": "cd ./src/database && npx sequelize-cli db:seed --seed 20211014122917-seedData.js",
-    "dropDB": "cd ./src/database && npx sequelize-cli db:seed --seed drop-all.js"
+    "copyDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli migration:generate --name init_db",
+    "seedDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed 20211014122917-seedData.js",
+    "dropDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed drop-all.js",
+    "createDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:create"
   },
   "dependencies": {
     "autoprefixer": "^10.4.13",
@@ -35,12 +36,14 @@
     "eslint-plugin-prettier": "^4.2.1",
     "express": "4.18.2",
     "nodemon": "^2.0.20",
+    "pg": "^8.8.0",
+    "pg-hstore": "^2.3.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.5",
-    "serve-static": "^1.15.0",
     "sequelize": "6.6.5",
     "sequelize-cli": "6.2.0",
+    "serve-static": "^1.15.0",
     "sqlite": "4.0.23",
     "sqlite3": "5.0.2",
     "ts-node": "^10.9.1"

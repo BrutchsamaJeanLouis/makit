@@ -9,16 +9,16 @@ const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
 
 const resolve = (p: string) => path.resolve(__dirname, p);
 
-// Init Models
-import User from "./src/database/models/user";
-import Project from "./src/database/models/project";
-import Location from "./src/database/models/location";
-import Rating from "./src/database/models/rating";
-import Fund from "./src/database/models/fund";
-import Media from "./src/database/models/media";
-import Comment from "./src/database/models/comment";
 async function initialiseModels() {
-  await User.sync(); // const used for authentication
+  // Init Models
+  const User = require("./src/database/models/user");
+  const Project = require("./src/database/models/project");
+  const Location = require("./src/database/models/location");
+  const Rating = require("./src/database/models/rating");
+  const Fund = require("./src/database/models/fund");
+  const Media = require("./src/database/models/media");
+  const Comment = require("./src/database/models/comment");
+  await User.sync();
   await Project.sync();
   await Location.sync();
   await Rating.sync();

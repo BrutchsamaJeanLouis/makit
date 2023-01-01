@@ -2,8 +2,16 @@ import { Sequelize, DataTypes, Model } from "sequelize";
 import Project from "./project";
 // const Project = require('./project')
 // path from seqalize root to db path
-const sequelize = new Sequelize({ dialect: "sqlite", storage: "./src/database/makit.db", logging: false });
-sequelize.query("PRAGMA journal_mode=WAL;");
+// const sequelize = new Sequelize({
+//   username: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DATABASE,
+//   host: process.env.DB_HOST,
+//   dialect: process.env.DB_DIALECT,
+//   logging: process.env.DB_QUERY_LOG === "true" ? true : false
+// });
+// sequelize.query("PRAGMA journal_mode=WAL;");
+import sequelize from "../sequelize-connection";
 
 export default class Media extends Model {}
 
