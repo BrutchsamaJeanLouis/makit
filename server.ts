@@ -56,7 +56,7 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
   const requestHandler = express.static(resolve("assets"));
   app.use(requestHandler);
   app.use("/assets", requestHandler);
-  app.use("/api", require("./src/server/routes/api"));
+  app.use("/api", require("./src/server/api-router"));
 
   if (isProd) {
     app.use(compression());
