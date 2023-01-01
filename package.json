@@ -26,6 +26,7 @@
     "copyDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli migration:generate --name init_db",
     "seedDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed 20211014122917-seedData.js",
     "dropDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed drop-all.js",
+    "clearDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed clear-all.js",
     "createDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:create"
   },
   "dependencies": {
