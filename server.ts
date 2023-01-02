@@ -2,9 +2,13 @@ import type { Request, Response, NextFunction } from "express";
 import fs from "fs/promises";
 import path from "path";
 import express from "express";
+import session from "express-session";
 import compression from "compression";
 import serveStatic from "serve-static";
 import { createServer as createViteServer } from "vite";
+const pgSession = require("connect-pg-simple")(session);
+import { Pool } from "pg";
+
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
 
 const resolve = (p: string) => path.resolve(__dirname, p);
@@ -50,11 +54,33 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
     logLevel: isTest ? "error" : "info"
   });
 
+  const postgresConnectionPool = new Pool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000
+  });
+
   // use vite's connect instance as middleware
   // if you use your own express router (express.Router()), you should use router.use
   app.use(vite.middlewares);
   const requestHandler = express.static(resolve("assets"));
   app.use(requestHandler);
+  app.use(
+    session({
+      store: new pgSession({
+        pool: postgresConnectionPool, // Connection pool
+        createTableIfMissing: true,
+        // tableName: "server_sessions" // Use another table-name than the default "session" one
+        // Insert connect-pg-simple options here
+      }),
+      secret: "makit_hush",
+      resave: false,
+      cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+      // Insert express-session options here
+  }));
   app.use("/assets", requestHandler);
   app.use("/api", require("./src/server/api-router"));
 
