@@ -8,6 +8,9 @@ import serveStatic from "serve-static";
 import { createServer as createViteServer } from "vite";
 const pgSession = require("connect-pg-simple")(session);
 import { Pool } from "pg";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+dayjs.extend(duration);
 
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
 
@@ -65,17 +68,20 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
 
   // use vite's connect instance as middleware
   // if you use your own express router (express.Router()), you should use router.use
+  const oneDay = 86400;
   app.use(vite.middlewares);
   const requestHandler = express.static(resolve("assets"));
   app.use(requestHandler);
   app.use(
     session({
       store: new pgSession({
-        pool: postgresConnectionPool, // Connection pool
+        // connect-pg-simple options here
+        pool: postgresConnectionPool,
         createTableIfMissing: true,
-        // tableName: "server_sessions" // Use another table-name than the default "session" one
-        // Insert connect-pg-simple options here
+        //tableName:  default "session"
+        pruneSessionInterval: oneDay
       }),
+      saveUninitialized: false,
       secret: "makit_hush",
       resave: false,
       cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
