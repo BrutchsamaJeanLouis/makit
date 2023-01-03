@@ -6,8 +6,6 @@ import session from "express-session";
 import compression from "compression";
 import serveStatic from "serve-static";
 import { createServer as createViteServer } from "vite";
-const pgSession = require("connect-pg-simple")(session);
-import { Pool } from "pg";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
@@ -48,7 +46,24 @@ const getStyleSheets = async () => {
 };
 
 async function createServer(isProd = process.env.NODE_ENV === "production") {
+  // Imports
+  const { Pool } = await import("pg");
+  const pgSession = require("connect-pg-simple")(session);
+
+  // Middleware setups
+  const postgresConnectionPool = new Pool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DATABASE,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000
+  });
+
   const app = express();
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   // Create Vite server in middleware mode and configure the app type as
   // 'custom', disabling Vite's own HTML serving logic so parent server
   // can take control
@@ -58,18 +73,12 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
     logLevel: isTest ? "error" : "info"
   });
 
-  const postgresConnectionPool = new Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000
-  });
-
   // use vite's connect instance as middleware
   // if you use your own express router (express.Router()), you should use router.use
   const oneDay = 86400;
+  const thirtyDays = 2592000000;
+  const oneMinute = 60000;
+  const twoMinute = 120000;
   app.use(vite.middlewares);
   const requestHandler = express.static(resolve("assets"));
   app.use(requestHandler);
@@ -79,13 +88,13 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
         // connect-pg-simple options here
         pool: postgresConnectionPool,
         createTableIfMissing: true,
-        //tableName:  default "session"
-        pruneSessionInterval: oneDay
+        tableName: "session", // default "session"
+        schemaName: "public"
       }),
       saveUninitialized: false,
       secret: "makit_hush",
       resave: false,
-      cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+      cookie: { maxAge: thirtyDays }
       // Insert express-session options here
     })
   );

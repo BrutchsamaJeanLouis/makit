@@ -13,11 +13,11 @@ router.get("/whoami", async (req: Request, res: Response, next: NextFunction) =>
   // to  make use of redirect like this
   // use form post instead of ajax/xhr on react
   // return res.redirect("/");
-  return res.json({ ...req.session });
+  return res.json({ ...req.session.user });
 });
 
-router.post('/register', async (req: Request, res: Response) => {
-  const { email, password, username, firstName, lastName } = req.body;
+router.post("/register", async (req: Request, res: Response) => {
+  const { email, password, username } = req.body;
 
   /** ---------------------------------------------------------------
    *    Check if Email or Username is not already existing
@@ -96,5 +96,59 @@ router.post('/register', async (req: Request, res: Response) => {
   // res.redirect('/api/whoami')
 })
 
+router.post('/login', async (req: Request, res: Response) => {
+  const { email, password, username } = req.body
+  const { attemptedUrl } = req.body
+  try {
+    const isUserLoggedIn = req?.session?.user ? true : false
+    if (isUserLoggedIn) {
+      return res.status(302).json({
+        redirect: '/',
+        loginStatus: isUserLoggedIn,
+        sessionUser: req.session.user || null,
+        successLoginRedirect: true
+      })
+    }
+
+    const foundUser: any = await User.findOne({ where: { email: email } }).catch((err) => {
+      return res.status(500).json({ error: err })
+    })
+
+    if (!foundUser) {
+      console.log('Email not Found')
+      return res.status(500).json({ error: 'Invalid email or password' })
+    }
+
+    const dBHashedPassword = foundUser.password
+    bcrypt.compare(password, dBHashedPassword, (err, result) => {
+      if (result === true) {
+        // after a success password match check if the user is verified if not redirect to confirmation page
+        // if (foundUser.verified === false) {
+        //   return res.status(302).json({ redirect: '/register-confirm', error: 'Account not verified' })
+        // }
+        req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username }
+        // Success
+        // attemptedURL is set when react router locked route is triggered
+        // lastBrowserPath is set On every axios request in interceptor (/client/App.jsx)
+        res.status(302).json({ redirect: attemptedUrl || req.headers.lastbrowserpath || '/', successLoginRedirect: true })
+      } else {
+        // comparision failed
+        res.status(500).send({ error: err || "Invalid email or password" });
+      }
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({ error });
+  }
+});
+
+router.get("/logout", (req: Request, res: Response) => {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+  const username = req.session.user?.username;
+  req.session.destroy(() => console.log(`${username} has logged out`));
+  return res.redirect("/");
+});
 
 export default router;
