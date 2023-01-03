@@ -11,6 +11,7 @@ import { Pool } from "pg";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
+// import apiRouter from "./src/server/api-router";
 
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
 
@@ -86,9 +87,12 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
       resave: false,
       cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
       // Insert express-session options here
-  }));
+    })
+  );
+
   app.use("/assets", requestHandler);
-  app.use("/api", require("./src/server/api-router"));
+  const apiRouter = await (await import("./src/server/api-router")).default;
+  app.use("/api", apiRouter);
 
   if (isProd) {
     app.use(compression());

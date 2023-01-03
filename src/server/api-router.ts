@@ -1,21 +1,7 @@
-"use strict";
-import express, { NextFunction } from "express";
-import { Request, Response } from "express";
+import express from "express";
+import authRouter from "./routes/auth";
 const router = express.Router();
-/**
- * List of API examples.
- * @route GET /api
- */
-export const getApi = async (req: Request, res: Response) => {
-  return res.status(200).json({ testData: "Hi" });
-};
 
-/* GET home page. */
-router.get("/test", async (req: Request, res: Response, next: NextFunction) => {
-  // return res.status(200).json({ testData: "Hi" });
-  // to  make use of redirect like this
-  // use form post instead of ajax/xhr on react
-  return res.redirect("/");
-});
+router.use("/auth", authRouter);
 
-module.exports = router;
+export default router;
