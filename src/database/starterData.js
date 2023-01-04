@@ -46,7 +46,7 @@ const seedDB = async sequalizeInstance => {
         company: "corp",
         salt: 10
       }
-    // @ts-ignore
+      // @ts-ignore
     ]).then(console.log("\n DONE bulk insert users-------------------------------------------------------"));
   }
 
