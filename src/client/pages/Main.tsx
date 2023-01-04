@@ -26,7 +26,7 @@ const Main = () => {
           className="focus:ring-indigo-500 focus:border-indigo-500 block w-full text-2xl border-gray-300 rounded-md p-2"
         />
         <form method="GET" action="/api/test">
-          <button type="submit">Call /api/test</button>
+          <button className="btn btn-primary" type="submit">Call /api/test</button>
         </form>
       </div>
       <Footer />
