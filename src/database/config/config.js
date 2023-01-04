@@ -1,9 +1,3 @@
-// {
-//   "development": {
-//     "dialect": "sqlite",
-//     "storage": "./makit.db"
-//   }
-// }
 const path = require("path");
 if (process.env.NODE_ENV) {
   require("dotenv").config({

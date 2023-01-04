@@ -25,21 +25,21 @@ router.post("/register", async (req: Request, res: Response) => {
 
   const matchedEmail = await User.findOne({
     where: { email: email }
-  })
+  });
 
   const matchedUsername = await User.findOne({
     where: { username: username }
-  })
+  });
 
-  if (matchedEmail) return res.status(500).send({ error: `email "${email}" already exist` })
-  if (matchedUsername) return res.status(500).send({ error: `user "${username}" already exist` })
+  if (matchedEmail) return res.status(500).send({ error: `email "${email}" already exist` });
+  if (matchedUsername) return res.status(500).send({ error: `user "${username}" already exist` });
 
   /** ---------------------------------------------------------------
    *    Create hash password and save user
    * --------------------------------------------------------------- */
 
-  const salt = await bcrypt.genSalt()
-  const hashedPassword = await bcrypt.hash(password, salt)
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(password, salt);
   await User.create({
     username: username,
     email: email,
@@ -47,7 +47,8 @@ router.post("/register", async (req: Request, res: Response) => {
     // firstName: firstName,
     // lastName: lastName,
   })
-    .then((userFetchFromDB) => {
+    // eslint-disable-next-line prettier/prettier
+    .then((createdUserCallback) => {
       // creating email token/url
       // const emailToken = jwt.sign(
       //   { userEmail: userFetchFromDB.email },
@@ -87,57 +88,59 @@ router.post("/register", async (req: Request, res: Response) => {
       //     return res.status(500).json({ error })
       //   })
     })
-    .catch((error) => {
-      console.log(error)
-      return res.status(500).json({ error: error })
-    })
+    .catch(error => {
+      console.log(error);
+      return res.status(500).json({ error: error });
+    });
 
   // then redirect to home
   // res.redirect('/api/whoami')
-})
+});
 
-router.post('/login', async (req: Request, res: Response) => {
-  const { email, password, username } = req.body
-  const { attemptedUrl } = req.body
+router.post("/login", async (req: Request, res: Response) => {
+  const { email, password, username } = req.body;
+  const { attemptedUrl } = req.body;
   try {
-    const isUserLoggedIn = req?.session?.user ? true : false
+    const isUserLoggedIn = req?.session?.user ? true : false;
     if (isUserLoggedIn) {
       return res.status(302).json({
-        redirect: '/',
+        redirect: "/",
         loginStatus: isUserLoggedIn,
         sessionUser: req.session.user || null,
         successLoginRedirect: true
-      })
+      });
     }
 
-    const foundUser: any = await User.findOne({ where: { email: email } }).catch((err) => {
-      return res.status(500).json({ error: err })
-    })
+    const foundUser: any = await User.findOne({ where: { email: email } }).catch(err => {
+      return res.status(500).json({ error: err });
+    });
 
     if (!foundUser) {
-      console.log('Email not Found')
-      return res.status(500).json({ error: 'Invalid email or password' })
+      console.log("Email not Found");
+      return res.status(500).json({ error: "Invalid email or password" });
     }
 
-    const dBHashedPassword = foundUser.password
+    const dBHashedPassword = foundUser.password;
     bcrypt.compare(password, dBHashedPassword, (err, result) => {
       if (result === true) {
         // after a success password match check if the user is verified if not redirect to confirmation page
         // if (foundUser.verified === false) {
         //   return res.status(302).json({ redirect: '/register-confirm', error: 'Account not verified' })
         // }
-        req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username }
+        req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username };
         // Success
         // attemptedURL is set when react router locked route is triggered
         // lastBrowserPath is set On every axios request in interceptor (/client/App.jsx)
-        res.status(302).json({ redirect: attemptedUrl || req.headers.lastbrowserpath || '/', successLoginRedirect: true })
+        res
+          .status(302)
+          .json({ redirect: attemptedUrl || req.headers.lastbrowserpath || "/", successLoginRedirect: true });
       } else {
         // comparision failed
         res.status(500).send({ error: err || "Invalid email or password" });
       }
-    })
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).send({ error });
   }
 });

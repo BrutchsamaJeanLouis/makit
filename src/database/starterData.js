@@ -1,9 +1,9 @@
-const Fund = require("./models/fund");
-const User = require("./models/user");
-const Rating = require("./models/rating");
-const Location = require("./models/location");
-const Media = require("./models/media");
-const Project = require("./models/project");
+const Fund = require("./models/fund").default;
+const User = require("./models/user").default;
+const Rating = require("./models/rating").default;
+const Location = require("./models/location").default;
+const Media = require("./models/media").default;
+const Project = require("./models/project").default;
 
 const seedDB = async sequalizeInstance => {
   const users = await User.findAll();
@@ -46,6 +46,7 @@ const seedDB = async sequalizeInstance => {
         company: "corp",
         salt: 10
       }
+    // @ts-ignore
     ]).then(console.log("\n DONE bulk insert users-------------------------------------------------------"));
   }
 
@@ -63,6 +64,7 @@ const seedDB = async sequalizeInstance => {
       { name: "project8", description: " this is the 8 created project", userID: 1 },
       { name: "project9", description: " this is the 9 created project", userID: 2 },
       { name: "project10", description: " this is the 10 created project", userID: 1 }
+      // @ts-ignore
     ]).then(console.log("\n DONE bulk insert projects----------------------------------------------------------"));
   }
 

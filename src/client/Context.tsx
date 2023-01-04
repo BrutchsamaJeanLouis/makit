@@ -6,7 +6,7 @@ export interface Context {
 }
 const defaultVal = {
   name: "",
-  setName: () => {},
+  setName: () => {}
 } as Context;
 
 const context = React.createContext(defaultVal);
