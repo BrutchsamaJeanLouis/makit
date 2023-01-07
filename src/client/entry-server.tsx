@@ -8,10 +8,9 @@ import "./index.css";
 
 export function render(url: string) {
   return ReactDOMServer.renderToString(
-    <React.StrictMode>
-      <StaticRouter location={url}>
-        <App />
-      </StaticRouter>
-    </React.StrictMode>
+    // TODO in production enable strict mode
+    <StaticRouter location={url}>
+      <App />
+    </StaticRouter>
   );
 }

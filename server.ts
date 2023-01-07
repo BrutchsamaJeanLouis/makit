@@ -40,6 +40,7 @@ const getStyleSheets = async () => {
   const allContent = [];
   for (const asset of cssAssets) {
     const content = await fs.readFile(path.join(assetpath, asset), "utf-8");
+    // @ts-ignore
     allContent.push(`<style type="text/css">${content}</style>`);
   }
   return allContent.join("\n");
@@ -100,8 +101,7 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
   );
 
   app.use("/assets", requestHandler);
-  const apiRouter = await (await import("./src/server/api-router")).default;
-  app.use("/api", apiRouter);
+  app.use("/api", await (await import("./src/server/api-router")).default);
 
   if (isProd) {
     app.use(compression());

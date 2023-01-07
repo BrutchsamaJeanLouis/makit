@@ -69,7 +69,8 @@ module.exports = {
         {}
       );
     } catch (err) {
-      console.log("Error occured while bulk insert Users", err.original.message);
+      // @ts-ignore
+      console.log("Error occured while bulk insert Users", err?.original?.message);
     }
 
     try {
@@ -160,7 +161,8 @@ module.exports = {
         {}
       );
     } catch (err) {
-      console.log("Error occured while bulk insert projects", err.original.message);
+      // @ts-ignore
+      console.log("Error occured while bulk insert projects", err?.original?.message);
     }
 
     try {
@@ -271,7 +273,8 @@ module.exports = {
         {}
       );
     } catch (err) {
-      console.log("Error occured while bulk insert locations", err.original.message);
+      // @ts-ignore
+      console.log("Error occured while bulk insert locations", err?.original?.message);
     }
 
     try {
@@ -331,7 +334,8 @@ module.exports = {
         {}
       );
     } catch (err) {
-      console.log("Error occured while bulk insert ratings", err.original.message);
+      // @ts-ignore
+      console.log("Error occured while bulk insert ratings", err?.original?.message);
     }
 
     try {
@@ -391,7 +395,8 @@ module.exports = {
         {}
       );
     } catch (err) {
-      console.log("Error occured while bulk insert media", err.original.message);
+      // @ts-ignore
+      console.log("Error occured while bulk insert media", err?.original?.message);
     }
 
     try {
@@ -451,7 +456,8 @@ module.exports = {
         {}
       );
     } catch (err) {
-      console.log("Error occured while bulk insert comments", err.original.message);
+      // @ts-ignore
+      console.log("Error occured while bulk insert comments", err?.original?.message);
     }
 
     try {
@@ -494,7 +500,8 @@ module.exports = {
         {}
       );
     } catch (err) {
-      console.log("Error occured while bulk insert comments", err.original.message);
+      // @ts-ignore
+      console.log("Error occured while bulk insert comments", err?.original?.message);
     }
   },
 

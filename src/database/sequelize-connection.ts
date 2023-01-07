@@ -1,11 +1,12 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, Dialect } from "sequelize";
+// @ts-ignore
 // path from seqalize root to db path
 const sequelize = new Sequelize({
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DATABASE,
-  host: process.env.DB_HOST,
-  dialect: process.env.DB_DIALECT,
+  username: String(process.env.DB_USER || "empty"),
+  password: String(process.env.DB_PASSWORD || "empty"),
+  database: String(process.env.DATABASE || "empty"),
+  host: String(process.env.DB_HOST || "empty"),
+  dialect: String(process.env.DB_DIALECT || "postgres"),
   logging: process.env.DB_QUERY_LOG === "true" ? true : false
 });
 

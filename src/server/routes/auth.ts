@@ -19,6 +19,10 @@ router.get("/whoami", async (req: Request, res: Response, next: NextFunction) =>
 router.post("/register", async (req: Request, res: Response) => {
   const { email, password, username } = req.body;
 
+  if (!email || !password || !username) {
+    return res.redirect("/register/?error=please provide all values");
+  }
+
   /** ---------------------------------------------------------------
    *    Check if Email or Username is not already existing
    * --------------------------------------------------------------- */

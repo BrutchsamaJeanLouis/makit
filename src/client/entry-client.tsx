@@ -9,11 +9,10 @@ import "./index.css";
 const container = document.getElementById("app");
 
 const FullApp = () => (
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
+  // TODO in production enable strict mode
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
 );
 
 if (import.meta.hot || !container?.innerText) {
