@@ -9,7 +9,7 @@
   "author": "JonLuca DeCaro",
   "license": "MIT",
   "scripts": {
-    "start": "NODE_ENV=development nodemon --watch server.ts --watch src/server --exec 'ts-node server.ts'",
+    "start": "NODE_ENV=development nodemon --exec 'ts-node server.ts'",
     "client": "yarn build:client && vite --config vite.config.ts dev",
     "build": "rimraf dist && tsc -p tsconfig.prod.json && yarn build:client && yarn build:server && yarn copy-files",
     "build:client": "vite build --outDir dist/client --ssrManifest",
