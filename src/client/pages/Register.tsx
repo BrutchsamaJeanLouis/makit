@@ -20,16 +20,6 @@ export default function Register() {
   }, []);
 
   return (
-    // <div>
-    //   Register
-    //   <form action="/api/auth/register" method="POST">
-    //     <input type="text" name="username" placeholder="username" />
-    //     <input type="text" name="email" placeholder="email" />
-    //     <input type="password" name="password" placeholder="password" />
-    //     <button className="btn btn-primary" type="submit">Register</button>
-    //   </form>
-    // </div>
-
     <div className="">
       <div className="container">
         <h2>Registration Form</h2>
