@@ -58,7 +58,7 @@ Location.init(
 // Location.belongsTo(Project, { foreignKey: 'projectID' })
 Project.hasOne(Location, { foreignKey: "projectId" });
 
-Location.sync({ alter: true })
-  .then(() => console.log("successfully synced location model"))
-  .catch((err: any) => console.log(err));
+// Location.sync({ alter: true })
+//   .then(() => console.log("successfully synced location model"))
+//   .catch((err: any) => console.log(err));
 // module.exports = Location

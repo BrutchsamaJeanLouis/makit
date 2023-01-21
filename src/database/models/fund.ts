@@ -61,7 +61,7 @@ Fund.belongsTo(User, { foreignKey: "userId" });
 // Fund.belongsTo(Project, { foreignKey: 'projectID' })
 Project.hasMany(Fund, { foreignKey: "projectId" });
 
-Fund.sync({ alter: true })
-  .then(() => console.log("successfully synced fund model"))
-  .catch((err: any) => console.log(err));
+// Fund.sync({ alter: true })
+//   .then(() => console.log("successfully synced fund model"))
+//   .catch((err: any) => console.log(err));
 // module.exports = Fund

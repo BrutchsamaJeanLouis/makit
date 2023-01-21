@@ -59,7 +59,7 @@ Comment.belongsTo(User, { foreignKey: "userId" });
 // Comment.belongsTo(Project, { foreignKey: 'projectID' })
 Project.hasMany(Comment, { foreignKey: "projectId" });
 
-Comment.sync({ alter: true })
-  .then(() => console.log("successfully synced comment model"))
-  .catch((err: any) => console.log(err));
+// Comment.sync({ alter: true })
+//   .then(() => console.log("successfully synced comment model"))
+//   .catch((err: any) => console.log(err));
 // module.exports = Comment

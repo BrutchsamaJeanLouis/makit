@@ -52,7 +52,7 @@ Media.init(
 // Media.belongsTo(Project, { foreignKey: 'projectID' })
 Project.hasMany(Media, { foreignKey: "projectId" });
 
-Media.sync({ alter: true })
-  .then(() => console.log("successfully synced media model"))
-  .catch((err: any) => console.log(err));
+// Media.sync({ alter: true })
+//   .then(() => console.log("successfully synced media model"))
+//   .catch((err: any) => console.log(err));
 // module.exports = Media

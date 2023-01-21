@@ -4,6 +4,12 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../../database/models/user";
+import Project from "../../database/models/project";
+import Rating from "../../database/models/rating";
+import Comment from "../../database/models/comment";
+import Location from "../../database/models/location";
+import Media from "../../database/models/media";
+import Fund from "../../database/models/fund";
 // const User = {}
 export const router = express.Router();
 
@@ -13,6 +19,15 @@ router.get("/whoami", async (req: Request, res: Response, next: NextFunction) =>
   // to  make use of redirect like this
   // use form post instead of ajax/xhr on react
   // return res.redirect("/");
+  const proj = await Project.findAll({
+    include: [
+      { model: Rating },
+      { model: Comment },
+      { model: Location },
+      { model: Media },
+      { model: Fund }
+    ]
+  });
   return res.json({ ...req.session.user });
 });
 

@@ -55,8 +55,8 @@ User.init(
   }
 );
 
-User.sync({ alter: true })
-  .then(() => console.log("successfully synced user model"))
-  .catch((err: any) => console.log(err));
+// User.sync({ alter: true })
+//   .then(() => console.log("successfully synced user model"))
+//   .catch((err: any) => console.log(err));
 
 // module.exports = User

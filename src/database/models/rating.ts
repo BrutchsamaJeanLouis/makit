@@ -61,7 +61,7 @@ Project.hasMany(Rating, { foreignKey: "projectID" });
 Rating.belongsTo(User, { foreignKey: "userId" });
 // User.hasMany(Rating)
 
-Rating.sync({ alter: true })
-  .then(() => console.log("successfully synced rating model"))
-  .catch((err: any) => console.log(err));
+// Rating.sync({ alter: true })
+//   .then(() => console.log("successfully synced rating model"))
+//   .catch((err: any) => console.log(err));
 // module.exports = Rating

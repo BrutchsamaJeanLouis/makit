@@ -17,20 +17,53 @@ const resolve = (p: string) => path.resolve(__dirname, p);
 
 async function initialiseModels() {
   // Init Models
-  const User = require("./src/database/models/user");
-  const Project = require("./src/database/models/project");
-  const Location = require("./src/database/models/location");
-  const Rating = require("./src/database/models/rating");
-  const Fund = require("./src/database/models/fund");
-  const Media = require("./src/database/models/media");
-  const Comment = require("./src/database/models/comment");
-  await User.sync();
-  await Project.sync();
-  await Location.sync();
-  await Rating.sync();
-  await Fund.sync();
-  await Media.sync();
-  await Comment.sync();
+  const User = await (await import("./src/database/models/user")).default;
+  const Project = await (await import("./src/database/models/project")).default;
+  const ProjectTenant = await (await import("./src/database/models/project_tenant")).default;
+  const ProjectInvite = await (await import("./src/database/models/project_invite")).default;
+  const Location = await (await import("./src/database/models/location")).default;
+  const Rating = await (await import("./src/database/models/rating")).default;
+  const Fund = await (await import("./src/database/models/fund")).default;
+  const Media = await (await import("./src/database/models/media")).default;
+  const Comment = await (await import("./src/database/models/comment")).default;
+
+  // adding console logs after sync is called.
+  // This is to catch and determine what caused the sync to fail
+  await User.sync({ alter: true })
+    .then(() => console.log("server synced user Model"))
+    .catch(err => console.error("user Model failed to sync", err));
+
+  await Project.sync({ alter: true })
+    .then(() => console.log("server synced project Model"))
+    .catch(err => console.error("project Model failed to sync", err));
+
+  await ProjectTenant.sync({ alter: true })
+    .then(() => console.log("server synced projectTenant Model"))
+    .catch(err => console.error("projectTenant Model failed to sync", err));
+
+  await ProjectInvite.sync({ alter: true })
+    .then(() => console.log("server synced projectInvite Model"))
+    .catch(err => console.error("projectInvite Model failed to sync", err));
+
+  await Location.sync({ alter: true })
+    .then(() => console.log("server synced Location Model"))
+    .catch(err => console.error("location Model failed to sync", err));
+
+  await Rating.sync({ alter: true })
+    .then(() => console.log("server synced Rating Model"))
+    .catch(err => console.error("rating Model failed to sync", err));
+
+  await Fund.sync({ alter: true })
+    .then(() => console.log("server synced Fund Model"))
+    .catch(err => console.error("fund Model failed to sync", err));
+
+  await Media.sync({ alter: true })
+    .then(() => console.log("server synced Media Model"))
+    .catch(err => console.error("media Model failed to sync", err));
+
+  await Comment.sync({ alter: true })
+    .then(() => console.log("server synced Comment Model"))
+    .catch(err => console.error("comment Model failed to sync", err));
 }
 
 const getStyleSheets = async () => {
@@ -157,15 +190,17 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
   });
 }
 
-if (process.env.NODE_ENV) {
-  require("dotenv").config({
-    path: path.join(__dirname, `./.env.${process.env.NODE_ENV}`)
-  });
-  initialiseModels()
-    .then(() => createServer())
-    .catch(() => createServer());
-  // createServer();
-} else {
-  console.error("No NODE_ENV provided please provide an environment with your script command");
-  process.exit();
-}
+// Start Func
+(async function () {
+  if (process.env.NODE_ENV) {
+    require("dotenv").config({
+      path: path.join(__dirname, `./.env.${process.env.NODE_ENV}`)
+    });
+    await initialiseModels()
+      .then(() => createServer())
+      .catch(() => createServer());
+  } else {
+    console.error("No NODE_ENV provided please provide an environment with your script command");
+    process.exit();
+  }
+})();

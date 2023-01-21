@@ -16,6 +16,7 @@ import User from "./user";
 // });
 // sequelize.query("PRAGMA journal_mode=WAL;");
 import sequelize from "../sequelize-connection";
+// import Tenant from "./project_tenant";
 
 export default class Project extends Model {}
 
@@ -57,7 +58,7 @@ Project.init(
 Project.belongsTo(User, { foreignKey: "userId" });
 // Project.hasOne(User)
 
-Project.sync({ alter: true })
-  .then(() => console.log("successfully synced project model"))
-  .catch((err: any) => console.log(err));
+// Project.sync({ alter: true })
+//   .then(() => console.log("successfully synced project model"))
+//   .catch((err: any) => console.log(err));
 // module.exports = Project
