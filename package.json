@@ -9,7 +9,8 @@
   "author": "BrutchsamaJeanLouis",
   "license": "MIT",
   "scripts": {
-    "start": "NODE_ENV=development nodemon --exec 'ts-node server.ts'",
+    "start": "concurrently \"NODE_ENV=development nodemon --exec 'ts-node server.ts'\" \"npx serverless offline start\" \"npx aws-ses-local --outputDir ./aws-ses\"",
+    "server": "NODE_ENV=development nodemon --exec 'ts-node server.ts'",
     "client": "yarn build:client && vite --config vite.config.ts dev",
     "build": "rimraf dist && tsc -p tsconfig.prod.json && yarn build:client && yarn build:server && yarn copy-files",
     "build:client": "vite build --outDir dist/client --ssrManifest",
@@ -28,13 +29,13 @@
     "dropDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed drop-all.js",
     "clearDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed clear-all.js",
     "createDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:create",
-    "emailServer": "npx aws-ses-local --outputDir ./aws-ses"
+    "ses-local": "npx aws-ses-local --outputDir ./aws-ses",
+    "s3-local": "npx serverless offline start"
   },
   "dependencies": {
     "@reduxjs/toolkit": "1.8.1",
     "autoprefixer": "10.4.5",
     "aws-sdk": "^2.1299.0",
-    "aws-ses-local": "^1.3.0",
     "axios": "0.27.2",
     "bcrypt": "^5.1.0",
     "bootstrap": "5.1.3",
@@ -83,7 +84,8 @@
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
     "@vitejs/plugin-react": "^3.0.0",
-    "concurrently": "7.6.0",
+    "aws-ses-local": "^1.3.0",
+    "concurrently": "^7.6.0",
     "copyfiles": "^2.4.1",
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
@@ -94,6 +96,7 @@
     "postcss": "8.4.20",
     "prettier": "^2.8.1",
     "rimraf": "^3.0.2",
+    "serverless-s3-local": "^0.6.22",
     "tailwindcss": "3.2.4",
     "typescript": "4.9.4",
     "vite": "4.0.1",

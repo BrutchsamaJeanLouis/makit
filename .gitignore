@@ -14,7 +14,10 @@ results
 tmp
 
 #AWS LocalHost
+aws-ses
 aws-ses/*
+local-uploads
+local-uploads/*
 
 # sqlite Database file
 src/database/makit.db
