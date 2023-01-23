@@ -7,6 +7,7 @@ import stringToBoolean from "../../sharedFuncs/stringToBoolean";
 import Login from "./Login";
 import { RoutesEnum } from "../../../types/enums";
 import axios from "axios";
+import RegisterConfirm from "./RegisterConfirm";
 
 const Main = () => {
   const { name, setName } = useAppContext();
@@ -17,7 +18,7 @@ const Main = () => {
         <Routes>
           {/* Do not use Raw Strings as routes. Add it to enums stores in ./types/enums */}
           <Route index element={<div>Home Page</div>} />
-          <Route path="/my-last-path" element={<button onClick={() => axios.get("/api/auth/whoami")}>WhoAmI </button>} />
+          <Route path="/register-confirm" element={<RegisterConfirm />} />
           <Route path={RoutesEnum.REGISTER} element={<Register />} />
           <Route path={RoutesEnum.LOGIN} element={<Login />} />
           {/* <Route path='/create-listing' element={<ProtectedRoute roles={['standard', 'admin', 'moderator']}><ItemCreate /></ProtectedRoute>} /> */}

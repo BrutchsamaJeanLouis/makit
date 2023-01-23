@@ -36,7 +36,7 @@ router.get("/whoami", ensureAuthentication, async (req: Request, res: Response, 
 });
 
 router.post("/register", async (req: Request, res: Response) => {
-  const { email, password, username } = req.body;
+  const { email, password, username }: { email: string; password: string; username: string } = req.body;
 
   if (!email || !password || !username) {
     return res.redirect("/register/?error=please provide all values");
@@ -63,63 +63,120 @@ router.post("/register", async (req: Request, res: Response) => {
 
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
-  await User.create({
+  const createdUserCallback: User | null = await User.create({
     username: username,
     email: email,
-    password: hashedPassword
-    // firstName: firstName,
-    // lastName: lastName,
-  })
-    // eslint-disable-next-line prettier/prettier
-    .then((createdUserCallback) => {
-      // creating email token/url
-      // const emailToken = jwt.sign(
-      //   { userEmail: userFetchFromDB.email },
-      //   process.env.EMAIL_TOKEN_HASH_SECRET,
-      //   {
-      //     expiresIn: '5h'
-      //   }
-      // )
+    password: hashedPassword,
+    company: "",
+    verified: false
+  });
 
-      // const emailLink = `${process.env.BASE_URL}/api/register-confirm/${emailToken}`
+  const hashSecret = process.env.EMAIL_TOKEN_HASH_SECRET || "";
+  // creating email token/url
+  const emailToken = jwt.sign({ userEmail: createdUserCallback.email }, hashSecret, {
+    expiresIn: "5h"
+  });
 
-      // const msg = {
-      //   to: email, // Change to your recipient
-      //   from: 'norelpy.mailer@gmail.com', // Change to your verified sender
-      //   subject: 'Account Verification',
-      //   html: `Please click this link to confirm your email <a href="${emailLink}">${emailLink}</a>`
-      // }
+  const emailLink = `${process.env.BASE_URL}/api/auth/register-confirm/${emailToken}`;
+  const html = `Please click this link to confirm your email <a href="${emailLink}">${emailLink}</a>`;
 
-      // UNCOMMENT TO ACTIVATE EMAIL VERIFICATION
-      // SEND GRID API Allows free 100 email per month
-      // Disabling for development purposes
+  // Send Verification Email
+  const AWS = require("aws-sdk");
+  const ses = new AWS.SES({
+    region: process.env.AWS_SES_REGION,
+    endpoint: process.env.AWS_SES_ENDPOINT,
+    credentials: { accessKeyId: process.env.AWS_SES_KEY, secretAccessKey: process.env.AWS_SES_SECRET }
+  });
 
-      /* Delete this line after enable email verify */
-      // return res.status(302).json({ redirect: '/register-confirm' })
-      // return res.redirect(RoutesEnum.LANDINGPAGE);
-      res.redirect(req.session.returnTo || RoutesEnum.LANDINGPAGE);
-      delete req.session.returnTo;
-
-      // Send email
-      // sgMail
-      //   .send(msg)
-      //   .then(() => {
-      //     console.log(`Verification Email sent to ${userFetchFromDB.email}`)
-      //     // return res.status(200).send('Email Sent Check Inbox Valid for "_" hours')
-      //     return res.status(302).json({ redirect: '/register-confirm' })
-      //   })
-      //   .catch((error) => {
-      //     console.error(error)
-      //     return res.status(500).json({ error })
-      //   })
-    })
-    .catch(error => {
-      console.log(error);
-      return res.status(500).json({ error: error });
-    });
+  ses.sendEmail(
+    {
+      Destination: { ToAddresses: [email] },
+      Message: {
+        Body: {
+          Html: {
+            Data: html
+          }
+        },
+        Subject: {
+          Data: "Account Verification"
+        }
+      },
+      Source: process.env.AWS_SES_EMAIL_ADDRESS
+    },
+    (emailFailedError, data) => {
+      if (emailFailedError) {
+        console.log("Email Failed To Send Error", emailFailedError);
+        return res.redirect(`/register-confirm?verification_sent=false&email=${email}`);
+      }
+    }
+  );
 
   // then redirect to home
-  // res.redirect('/api/whoami')
+  res.redirect(`/register-confirm?success=true&email=${email}`);
+});
+
+router.get("/register-confirm/:token", async (req, res) => {
+  const { token } = req.params;
+  try {
+    const hashSecret = process.env.EMAIL_TOKEN_HASH_SECRET || "";
+    // @ts-ignore
+    const { userEmail } = jwt.verify(token, hashSecret);
+    const foundUser = await User.findOne({ where: { email: userEmail } });
+    // and he is not already verified
+    if (foundUser && foundUser.verified === false) {
+      await foundUser.update({ verified: true });
+    } else {
+      // return res.status(400).json({ error: 'Invalid verification link -u' })
+      return res.redirect("/register?result=failed");
+    }
+  } catch (error) {
+    console.log(error);
+    // res.status(400).json({ error: 'Invalid verification link -t' })
+    return res.redirect("/register?result=failed");
+  }
+
+  return res.redirect("/login?register_confirm=passed");
+});
+
+router.post("/resend-verification", async (req, res) => {
+  const email = req.body.email;
+  const hashSecret = process.env.EMAIL_TOKEN_HASH_SECRET || "";
+  const emailToken = jwt.sign({ userEmail: email }, hashSecret, {
+    expiresIn: "5h"
+  });
+  const emailLink = `${process.env.BASE_URL}/api/auth/register-confirm/${emailToken}`;
+  const html = `Please click this link to confirm your email <a href="${emailLink}">${emailLink}</a>`;
+
+  const AWS = require("aws-sdk");
+  const ses = new AWS.SES({
+    region: process.env.AWS_SES_REGION,
+    endpoint: process.env.AWS_SES_ENDPOINT,
+    credentials: { accessKeyId: process.env.AWS_SES_KEY, secretAccessKey: process.env.AWS_SES_SECRET }
+  });
+
+  ses.sendEmail(
+    {
+      Destination: { ToAddresses: [email] },
+      Message: {
+        Body: {
+          Html: {
+            Data: html
+          }
+        },
+        Subject: {
+          Data: "Account Verification"
+        }
+      },
+      Source: process.env.AWS_SES_EMAIL_ADDRESS
+    },
+    (emailFailedError, data) => {
+      if (emailFailedError) {
+        console.log("Email Failed To Send Error", emailFailedError);
+        return res.redirect(`/register-confirm?verification_sent=false&email=${email}`);
+      }
+    }
+  );
+  return res.redirect("/register-confirm?verification_sent=true");
 });
 
 router.post("/login", async (req: Request, res: Response) => {
@@ -128,39 +185,28 @@ router.post("/login", async (req: Request, res: Response) => {
   try {
     const isUserLoggedIn = req?.session?.user ? true : false;
     if (isUserLoggedIn) {
-      return res.status(302).json({
-        redirect: "/",
-        loginStatus: isUserLoggedIn,
-        sessionUser: req.session.user || null,
-        successLoginRedirect: true
-      });
+      return res.redirect(`${req.session.returnTo || "/"}`);
     }
 
-    const foundUser: any = await User.findOne({ where: { username: username } }).catch(err => {
-      return res.status(500).json({ error: err });
-    });
+    const foundUser: User | null = await User.findOne({ where: { username: username } });
 
     if (!foundUser) {
-      console.log("Email not Found");
+      console.log("Username not Found");
       return res.status(500).json({ error: "Invalid email or password" });
+    }
+
+    if (foundUser.verified === false) {
+      return res.redirect(`/register-confirm?email=${foundUser.email}`);
     }
 
     const dBHashedPassword = foundUser.password;
     bcrypt.compare(password, dBHashedPassword, (err, result) => {
       if (result === true) {
-        // after a success password match check if the user is verified if not redirect to confirmation page
-        // if (foundUser.verified === false) {
-        //   return res.status(302).json({ redirect: '/register-confirm', error: 'Account not verified' })
-        // }
+        // create a session for user
         req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username };
-        // Success
-        // attemptedURL is set when react router locked route is triggered
-        // lastBrowserPath is set On every axios request in interceptor (/client/App.jsx)
 
+        // Success
         return res.redirect(`${req.session.returnTo || "/"}`);
-        // return res
-        //   .status(302)
-        //   .json({ redirect: req.session.returnTo || "/", successLoginRedirect: true });
       } else {
         // comparision failed
         return res.status(500).send({ error: err || "Invalid email or password" });

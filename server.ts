@@ -145,6 +145,16 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
     );
   }
   const stylesheets = getStyleSheets();
+
+  app.get("/logout", (req: Request, res: Response) => {
+    if (!req.session.user) {
+      return res.redirect("/");
+    }
+    const username = req.session.user?.username;
+    req.session.destroy(() => console.log(`${username} has logged out`));
+    return res.redirect("/");
+  });
+
   app.use("*", async (req: Request, res: Response, next: NextFunction) => {
     const url = req.originalUrl;
 

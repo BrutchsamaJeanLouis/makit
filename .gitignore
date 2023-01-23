@@ -13,6 +13,9 @@ logs
 results
 tmp
 
+#AWS LocalHost
+aws-ses/*
+
 # sqlite Database file
 src/database/makit.db
 src/database/makit.db-shm

@@ -1,9 +1,15 @@
-import { Sequelize, DataTypes, Model } from "sequelize";
+import { Sequelize, DataTypes, Model, CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
 import sequelize from "../sequelize-connection";
 import User from "./user";
 import Project from "./project";
 
-export default class ProjectTenant extends Model {}
+// for typeScript typing
+export default class ProjectTenant extends Model<
+  InferAttributes<ProjectTenant>,
+  InferCreationAttributes<ProjectTenant>
+> {
+  declare id: CreationOptional<number>;
+}
 
 // allowNull defaults to true if not set
 // const User = sequelize.define('User', {
@@ -28,9 +34,3 @@ ProjectTenant.init(
 ProjectTenant.belongsTo(User, { foreignKey: "userId" });
 ProjectTenant.belongsTo(Project, { foreignKey: "projectId" });
 Project.hasMany(ProjectTenant, { foreignKey: "projectId" });
-
-// ProjectTenant.sync({ alter: true })
-//   .then(() => console.log("successfully synced projectTenant model"))
-//   .catch((err: any) => console.log(err));
-
-// module.exports = User

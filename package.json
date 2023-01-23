@@ -27,11 +27,14 @@
     "seedDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed 20211014122917-seedData.js",
     "dropDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed drop-all.js",
     "clearDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed clear-all.js",
-    "createDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:create"
+    "createDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:create",
+    "emailServer": "npx aws-ses-local --outputDir ./aws-ses"
   },
   "dependencies": {
     "@reduxjs/toolkit": "1.8.1",
     "autoprefixer": "10.4.5",
+    "aws-sdk": "^2.1299.0",
+    "aws-ses-local": "^1.3.0",
     "axios": "0.27.2",
     "bcrypt": "^5.1.0",
     "bootstrap": "5.1.3",
@@ -54,7 +57,7 @@
     "react-dom": "^18.2.0",
     "react-redux": "8.0.1",
     "react-router-dom": "^6.4.5",
-    "sequelize": "6.6.5",
+    "sequelize": "6.28.0",
     "sequelize-cli": "6.2.0",
     "serve-static": "^1.15.0",
     "sqlite": "4.0.23",

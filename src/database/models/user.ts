@@ -1,25 +1,17 @@
-import { Sequelize, DataTypes, Model } from "sequelize";
-// const Comment = require('./comment')
-// const Fund = require('./fund')
-// const Project = require('./project')
-// const Rating = require('./rating')
-// path from seqalize root to db path
-// const sequelize = new Sequelize({
-//   username: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD,
-//   database: process.env.DATABASE,
-//   host: process.env.DB_HOST,
-//   dialect: process.env.DB_DIALECT,
-//   logging: process.env.DB_QUERY_LOG === "true" ? true : false
-// });
-// sequelize.query("PRAGMA journal_mode=WAL;");
-// add logging: false to paramterized constructor of sequalize to disable logging
+import { DataTypes, Model, Optional, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import sequelize from "../sequelize-connection";
 
-export default class User extends Model {}
+// for typeScript typing
+export default class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  declare id: CreationOptional<number>;
+  declare username: string;
+  declare email: string;
+  declare company: string;
+  declare password: string;
+  declare verified?: boolean;
+}
 
 // allowNull defaults to true if not set
-// const User = sequelize.define('User', {
 User.init(
   {
     // Model attributes are defined here
@@ -44,6 +36,10 @@ User.init(
     password: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   },
   {
@@ -54,9 +50,3 @@ User.init(
     modelName: "User"
   }
 );
-
-// User.sync({ alter: true })
-//   .then(() => console.log("successfully synced user model"))
-//   .catch((err: any) => console.log(err));
-
-// module.exports = User

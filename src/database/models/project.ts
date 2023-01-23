@@ -1,24 +1,13 @@
-import { Sequelize, DataTypes, Model } from "sequelize";
+import { Sequelize, DataTypes, Model, CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
 import User from "./user";
-// const Fund = require('./fund')
-// const Media = require('./media')
-// const Rating = require('./rating')
-// const Location = require('./location')
-// const Comment = require('./comment')
-// path from seqalize root to db path
-// const sequelize = new Sequelize({
-//   username: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD,
-//   database: process.env.DATABASE,
-//   host: process.env.DB_HOST,
-//   dialect: process.env.DB_DIALECT,
-//   logging: process.env.DB_QUERY_LOG === "true" ? true : false
-// });
-// sequelize.query("PRAGMA journal_mode=WAL;");
 import sequelize from "../sequelize-connection";
-// import Tenant from "./project_tenant";
 
-export default class Project extends Model {}
+// for typeScript typing
+export default class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Project>> {
+  declare id: CreationOptional<number>;
+  declare name: string;
+  declare description: string;
+}
 
 // allowNull defaults to true if not set
 Project.init(
@@ -32,20 +21,11 @@ Project.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false
-      // defaultValue: "John Doe"
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: false
     }
-    // userID: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    //   references: {
-    //     model: User,
-    //     key: 'id'
-    //   }
-    // }
   },
   {
     // Other model options
@@ -56,9 +36,3 @@ Project.init(
   }
 );
 Project.belongsTo(User, { foreignKey: "userId" });
-// Project.hasOne(User)
-
-// Project.sync({ alter: true })
-//   .then(() => console.log("successfully synced project model"))
-//   .catch((err: any) => console.log(err));
-// module.exports = Project

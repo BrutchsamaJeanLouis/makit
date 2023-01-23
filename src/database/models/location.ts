@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model } from "sequelize";
+import { Sequelize, DataTypes, Model, CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
 import Project from "./project";
 // path from seqalize root to db path
 // const sequelize = new Sequelize({
@@ -11,25 +11,22 @@ import Project from "./project";
 // });
 import sequelize from "../sequelize-connection";
 
-export default class Location extends Model {}
+export default class Location extends Model<InferAttributes<Location>, InferCreationAttributes<Location>> {
+  declare id: CreationOptional<number>;
+  declare address: string;
+  declare city: string;
+  declare postcode: string;
+  declare country: string;
+}
 
 // allowNull defaults to true if not set
 Location.init(
   {
-    // Model attributes are defined here
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    // projectID: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    //   references: {
-    //     model: Project,
-    //     key: 'id'
-    //   }
-    // },
     address: {
       type: DataTypes.STRING,
       allowNull: false
@@ -55,10 +52,5 @@ Location.init(
     modelName: "Location"
   }
 );
-// Location.belongsTo(Project, { foreignKey: 'projectID' })
-Project.hasOne(Location, { foreignKey: "projectId" });
 
-// Location.sync({ alter: true })
-//   .then(() => console.log("successfully synced location model"))
-//   .catch((err: any) => console.log(err));
-// module.exports = Location
+Project.hasOne(Location, { foreignKey: "projectId" });
