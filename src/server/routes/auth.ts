@@ -10,11 +10,14 @@ import Comment from "../../database/models/comment";
 import Location from "../../database/models/location";
 import Media from "../../database/models/media";
 import Fund from "../../database/models/fund";
+import ProjectTenant from "../../database/models/project_tenant";
+import { RoutesEnum } from "../../../types/enums";
+import { ensureAuthentication } from "../middlewareFunctions/auth-middleware";
 // const User = {}
 export const router = express.Router();
 
 /* GET home page. */
-router.get("/whoami", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/whoami", ensureAuthentication, async (req: Request, res: Response, next: NextFunction) => {
   // return res.status(200).json({ testData: "Hi" });
   // to  make use of redirect like this
   // use form post instead of ajax/xhr on react
@@ -25,7 +28,8 @@ router.get("/whoami", async (req: Request, res: Response, next: NextFunction) =>
       { model: Comment },
       { model: Location },
       { model: Media },
-      { model: Fund }
+      { model: Fund },
+      { model: ProjectTenant, include: [{ model: User }] }
     ]
   });
   return res.json({ ...req.session.user });
@@ -92,7 +96,9 @@ router.post("/register", async (req: Request, res: Response) => {
 
       /* Delete this line after enable email verify */
       // return res.status(302).json({ redirect: '/register-confirm' })
-      return res.redirect("/");
+      // return res.redirect(RoutesEnum.LANDINGPAGE);
+      res.redirect(req.session.returnTo || RoutesEnum.LANDINGPAGE);
+      delete req.session.returnTo;
 
       // Send email
       // sgMail
@@ -130,7 +136,7 @@ router.post("/login", async (req: Request, res: Response) => {
       });
     }
 
-    const foundUser: any = await User.findOne({ where: { email: email } }).catch(err => {
+    const foundUser: any = await User.findOne({ where: { username: username } }).catch(err => {
       return res.status(500).json({ error: err });
     });
 
@@ -150,12 +156,14 @@ router.post("/login", async (req: Request, res: Response) => {
         // Success
         // attemptedURL is set when react router locked route is triggered
         // lastBrowserPath is set On every axios request in interceptor (/client/App.jsx)
-        res
-          .status(302)
-          .json({ redirect: attemptedUrl || req.headers.lastbrowserpath || "/", successLoginRedirect: true });
+
+        return res.redirect(`${req.session.returnTo || "/"}`);
+        // return res
+        //   .status(302)
+        //   .json({ redirect: req.session.returnTo || "/", successLoginRedirect: true });
       } else {
         // comparision failed
-        res.status(500).send({ error: err || "Invalid email or password" });
+        return res.status(500).send({ error: err || "Invalid email or password" });
       }
     });
   } catch (error) {

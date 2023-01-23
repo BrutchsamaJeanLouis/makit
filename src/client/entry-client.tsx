@@ -5,6 +5,9 @@ import { App } from "./App";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
+import initAxios from "../sharedFuncs/initAxios";
+
+initAxios();
 
 const container = document.getElementById("app");
 

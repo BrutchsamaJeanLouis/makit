@@ -5,6 +5,8 @@ import { Route, Routes, useSearchParams } from "react-router-dom";
 import Register from "./Register";
 import stringToBoolean from "../../sharedFuncs/stringToBoolean";
 import Login from "./Login";
+import { RoutesEnum } from "../../../types/enums";
+import axios from "axios";
 
 const Main = () => {
   const { name, setName } = useAppContext();
@@ -13,9 +15,11 @@ const Main = () => {
     <div className="flex bg-white-100 font-sans items-center flex-col justify-between h-screen">
       <div className="flex items-center flex-col pt-10">
         <Routes>
+          {/* Do not use Raw Strings as routes. Add it to enums stores in ./types/enums */}
           <Route index element={<div>Home Page</div>} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/my-last-path" element={<button onClick={() => axios.get("/api/auth/whoami")}>WhoAmI </button>} />
+          <Route path={RoutesEnum.REGISTER} element={<Register />} />
+          <Route path={RoutesEnum.LOGIN} element={<Login />} />
           {/* <Route path='/create-listing' element={<ProtectedRoute roles={['standard', 'admin', 'moderator']}><ItemCreate /></ProtectedRoute>} /> */}
           <Route path="/item">
             <Route path=":itemId" element={<div>Item Number</div>} />

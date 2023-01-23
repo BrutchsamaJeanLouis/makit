@@ -27,6 +27,7 @@ ProjectTenant.init(
 
 ProjectTenant.belongsTo(User, { foreignKey: "userId" });
 ProjectTenant.belongsTo(Project, { foreignKey: "projectId" });
+Project.hasMany(ProjectTenant, { foreignKey: "projectId" });
 
 // ProjectTenant.sync({ alter: true })
 //   .then(() => console.log("successfully synced projectTenant model"))

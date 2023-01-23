@@ -4,9 +4,9 @@
   "description": "Boilerplate for a modern web stack",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jonluca/vite-typescript-ssr-react"
+    "url": "https://github.com/BrutchsamaJeanLouis/makit"
   },
-  "author": "JonLuca DeCaro",
+  "author": "BrutchsamaJeanLouis",
   "license": "MIT",
   "scripts": {
     "start": "NODE_ENV=development nodemon --exec 'ts-node server.ts'",

@@ -10,9 +10,11 @@ declare module "express-session" {
         }
       | undefined
       | null;
+    returnTo: string;
   }
 }
 
 function controller(req: express.Request, res: express.Response) {
   req.session.user;
+  req.session.returnTo;
 }
