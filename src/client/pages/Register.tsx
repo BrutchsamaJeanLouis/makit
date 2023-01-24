@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../Context";
 import { useSearchParams } from "react-router-dom";
-import stringToBoolean from "../../sharedFuncs/stringToBoolean";
+import stringToBoolean from "../../utils/stringToBoolean";
 
 export default function Register() {
   const { name, setName } = useAppContext();
@@ -17,6 +17,7 @@ export default function Register() {
       urlQuery.delete("error");
       setUrlQuery(urlQuery);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

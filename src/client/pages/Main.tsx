@@ -3,7 +3,7 @@ import { Footer } from "../components/Footer";
 import { useAppContext } from "../Context";
 import { Route, Routes, useSearchParams } from "react-router-dom";
 import Register from "./Register";
-import stringToBoolean from "../../sharedFuncs/stringToBoolean";
+import stringToBoolean from "../../utils/stringToBoolean";
 import Login from "./Login";
 import { RoutesEnum } from "../../../types/enums";
 import axios from "axios";

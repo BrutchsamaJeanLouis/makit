@@ -16,31 +16,16 @@ export default function Login() {
       urlQuery.delete("error");
       setUrlQuery(urlQuery);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    // <div className="">
-    //   <div className="container">
-    //     <h2>Login</h2>
-    //     <section>{serverError}</section>
-    //     <form action="/api/auth/login" method="POST">
-    //       <div className="form-group">
-    //         <label htmlFor="username">Username</label>
-    //         <input type="text" className="form-control" name="username" />
-    //       </div>
-    //       <div className="form-group">
-    //         <label htmlFor="Password">Password</label>
-    //         <input type="password" className="form-control" name="password" />
-    //       </div>
-    //       <button type="submit" className="btn btn-primary" name="create">
-    //         Sign in
-    //       </button>
-    //     </form>
-    //   </div>
-    // </div>
     <div className="px-5 py-5 p-lg-0 bg-surface-secondary">
       <div className="d-flex justify-content-center overflow-hidden">
-        <div className="login-sidebar col-lg-5 col-xl-4 p-12 p-xl-20 position-fixed start-0 top-0 h-screen overflow-y-hidden bg-primary d-none d-lg-flex flex-column px-3" style={{ paddingTop: "4.3rem", height: "98%", boxShadow: "13px 10px 29px -17px rgba(0,0,0,0.75)"}}>
+        <div
+          className="login-sidebar col-lg-5 col-xl-4 p-12 p-xl-20 position-fixed start-0 top-0 h-screen overflow-y-hidden bg-primary d-none d-lg-flex flex-column px-3"
+          style={{ paddingTop: "4.3rem", height: "98%", boxShadow: "13px 10px 29px -17px rgba(0,0,0,0.75)" }}
+        >
           {/* <!-- Logo --> */}
           <a className="d-block" href="#">
             <img src="/static/weblogo.png" className="h-10" alt="..." style={{ width: "70px" }} />
