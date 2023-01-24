@@ -16,8 +16,8 @@ tmp
 #AWS LocalHost
 aws-ses
 aws-ses/*
-local-uploads
-local-uploads/*
+aws-s3-media
+aws-s3-media/*
 
 # sqlite Database file
 src/database/makit.db
