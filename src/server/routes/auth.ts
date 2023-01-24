@@ -146,7 +146,7 @@ router.get("/register-confirm/:token", async (req, res) => {
  |           POST       /resend-verification
  |
  *===================================================================*/
-router.post("/resend-verification", async (req, res) => {
+router.post("/resend-verification", ensureAuthentication, async (req, res) => {
   const email = req.body.email;
   const hashSecret = process.env.EMAIL_TOKEN_HASH_SECRET || "";
   const emailToken = jwt.sign({ userEmail: email }, hashSecret, {
@@ -217,8 +217,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
     if (!foundUser) {
       console.log("Username not Found");
-      // return res.status(500).json({ error: "Invalid email or password" });
-      return res.redirect('/login?error=Invalid Login')
+      return res.redirect("/login?error=Invalid Login");
     }
 
     if (foundUser.verified === false) {
@@ -234,13 +233,13 @@ router.post("/login", async (req: Request, res: Response) => {
         // Success
         return res.redirect(`${req.session.returnTo || "/"}`);
       } else {
-        // comparision failed
-        return res.status(500).send({ error: err || "Invalid email or password" });
+        // password comparision failed
+        return res.redirect("/login?error=Invalid Login");
       }
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error });
+    res.status(500).redirect(`/login?error=${error}"`)
   }
 });
 
