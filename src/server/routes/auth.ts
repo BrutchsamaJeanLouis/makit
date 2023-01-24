@@ -12,11 +12,10 @@ import Media from "../../database/models/media";
 import Fund from "../../database/models/fund";
 import ProjectTenant from "../../database/models/project_tenant";
 import { RoutesEnum } from "../../../types/enums";
+import { Op } from "sequelize";
 import { ensureAuthentication } from "../middlewareFunctions/auth-middleware";
-// const User = {}
 export const router = express.Router();
 
-/* GET home page. */
 router.get("/whoami", ensureAuthentication, async (req: Request, res: Response, next: NextFunction) => {
   // return res.status(200).json({ testData: "Hi" });
   // to  make use of redirect like this
@@ -35,6 +34,11 @@ router.get("/whoami", ensureAuthentication, async (req: Request, res: Response, 
   return res.json({ ...req.session.user });
 });
 
+/*==================================================================**
+ |
+ |              POST          /register
+ |
+ *===================================================================*/
 router.post("/register", async (req: Request, res: Response) => {
   const { email, password, username }: { email: string; password: string; username: string } = req.body;
 
@@ -42,10 +46,7 @@ router.post("/register", async (req: Request, res: Response) => {
     return res.redirect("/register/?error=please provide all values");
   }
 
-  /** ---------------------------------------------------------------
-   *    Check if Email or Username is not already existing
-   * --------------------------------------------------------------- */
-
+  // Check if Email or Username is not already existing
   const matchedEmail = await User.findOne({
     where: { email: email }
   });
@@ -57,10 +58,7 @@ router.post("/register", async (req: Request, res: Response) => {
   if (matchedEmail) return res.status(500).send({ error: `email "${email}" already exist` });
   if (matchedUsername) return res.status(500).send({ error: `user "${username}" already exist` });
 
-  /** ---------------------------------------------------------------
-   *    Create hash password and save user
-   * --------------------------------------------------------------- */
-
+  // Create hash password and save user
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
   const createdUserCallback: User | null = await User.create({
@@ -115,6 +113,11 @@ router.post("/register", async (req: Request, res: Response) => {
   res.redirect(`/register-confirm?success=true&email=${email}`);
 });
 
+/*==================================================================**
+ |
+ |              GET          /register-confirm /:token
+ |
+ *===================================================================*/
 router.get("/register-confirm/:token", async (req, res) => {
   const { token } = req.params;
   try {
@@ -138,6 +141,11 @@ router.get("/register-confirm/:token", async (req, res) => {
   return res.redirect("/login?register_confirm=passed");
 });
 
+/*==================================================================**
+ |
+ |           POST       /resend-verification
+ |
+ *===================================================================*/
 router.post("/resend-verification", async (req, res) => {
   const email = req.body.email;
   const hashSecret = process.env.EMAIL_TOKEN_HASH_SECRET || "";
@@ -179,8 +187,13 @@ router.post("/resend-verification", async (req, res) => {
   return res.redirect("/register-confirm?verification_sent=true");
 });
 
+/*==================================================================**
+ |
+ |               POST         /Login
+ |
+ *===================================================================*/
 router.post("/login", async (req: Request, res: Response) => {
-  const { email, password, username } = req.body;
+  const { nameOrEmail, password, username } = req.body;
   const { attemptedUrl } = req.body;
   try {
     const isUserLoggedIn = req?.session?.user ? true : false;
@@ -188,11 +201,24 @@ router.post("/login", async (req: Request, res: Response) => {
       return res.redirect(`${req.session.returnTo || "/"}`);
     }
 
-    const foundUser: User | null = await User.findOne({ where: { username: username } });
+    // username or email match query
+    const foundUser: User | null = await User.findOne({
+      where: {
+        [Op.or]: [
+          {
+            username: { [Op.eq]: nameOrEmail }
+          },
+          {
+            email: { [Op.eq]: nameOrEmail }
+          }
+        ]
+      }
+    });
 
     if (!foundUser) {
       console.log("Username not Found");
-      return res.status(500).json({ error: "Invalid email or password" });
+      // return res.status(500).json({ error: "Invalid email or password" });
+      return res.redirect('/login?error=Invalid Login')
     }
 
     if (foundUser.verified === false) {
@@ -218,6 +244,11 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
+/*==================================================================**
+ |
+ |              GET          /Logout
+ |
+ *===================================================================*/
 router.get("/logout", (req: Request, res: Response) => {
   if (!req.session.user) {
     return res.redirect("/");
