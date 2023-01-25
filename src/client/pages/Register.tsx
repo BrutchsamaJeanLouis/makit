@@ -252,6 +252,6 @@ const Register = () => {
       </div>
     </div>
   );
-}
+};
 
 export default connect()(Register);
