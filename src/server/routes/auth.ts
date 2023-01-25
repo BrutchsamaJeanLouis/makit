@@ -18,7 +18,7 @@ import { registerRequestValidation } from "../../utils/validation-schemas/schema
 import { loginRequestValidation } from "../../utils/validation-schemas/schema-login";
 export const router = express.Router();
 
-router.get("/whoami", ensureAuthentication, async (req: Request, res: Response, next: NextFunction) => {
+router.get("/credentials", ensureAuthentication, async (req: Request, res: Response, next: NextFunction) => {
   // return res.status(200).json({ testData: "Hi" });
   // to  make use of redirect like this
   // use form post instead of ajax/xhr on react

@@ -1,6 +1,7 @@
-// https://lifesaver.codes/answer/need-some-advice-about-handling-302-redirects-from-ajax
+// @ts-nocheck
 import axios, { AxiosRequestConfig, AxiosRequestTransformer, AxiosResponse } from "axios";
 
+// https://lifesaver.codes/answer/need-some-advice-about-handling-302-redirects-from-ajax
 export default function initAxios() {
   axios.defaults.withCredentials = true;
 
@@ -38,11 +39,16 @@ export default function initAxios() {
       // if there was no previous url to send the user back to
       // if (!document.referrer) return request;
 
+      let currentBrowserPath = window.location.pathname;
+      const lastBrowserPath = document.referrer.substring(window.location.origin.length);
+      if (currentBrowserPath === "/login") currentBrowserPath = lastBrowserPath;
+
       const myheaders = {
-        "x-lastbrowserpath": document.referrer.substring(window.location.origin.length),
-        "x-currentbrowserpath": window.location.pathname,
-        "lastbrowserpath": document.referrer.substring(window.location.origin.length),
-        "currentbrowserpath": window.location.pathname
+        // Doing both for old and new http protocol (old require X-prefix)
+        "currentbrowserpath": currentBrowserPath,
+        "x-currentbrowserpath": currentBrowserPath,
+        "lastbrowserpath": lastBrowserPath,
+        "x-lastbrowserpath": lastBrowserPath
       };
 
       request.headers = { ...request.headers, ...myheaders };

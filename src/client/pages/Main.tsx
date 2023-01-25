@@ -8,6 +8,8 @@ import { RoutesEnum } from "../../../types/enums";
 import RegisterConfirm from "./RegisterConfirm";
 import Navbar from "../components/Navbar";
 import { connect } from "react-redux";
+import RequireLogin from "../components/RequireLogin";
+import CreatePost from "../components/CreatePost";
 
 const Main = () => {
   const { name, setName } = useAppContext();
@@ -23,10 +25,10 @@ const Main = () => {
             <Route path="/register-confirm" element={<RegisterConfirm />} />
             <Route path={RoutesEnum.REGISTER} element={<Register />} />
             <Route path={RoutesEnum.LOGIN} element={<Login />} />
-            {/* <Route path='/create-listing' element={<ProtectedRoute roles={['standard', 'admin', 'moderator']}><ItemCreate /></ProtectedRoute>} /> */}
-            <Route path="/item">
+            <Route path="/create-post" element={<RequireLogin view={<CreatePost />} />} />
+            {/* <Route path="/item">
               <Route path=":itemId" element={<div>Item Number</div>} />
-            </Route>
+            </Route> */}
             <Route path="*" element={<p>Theres nothing here: 404!</p>} />
           </Routes>
         </div>
