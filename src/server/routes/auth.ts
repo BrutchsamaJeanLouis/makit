@@ -14,6 +14,8 @@ import ProjectTenant from "../../database/models/project_tenant";
 import { RoutesEnum } from "../../../types/enums";
 import { Op } from "sequelize";
 import { ensureAuthentication } from "../middlewareFunctions/auth-middleware";
+import { registerRequestValidation } from "../../utils/validation-schemas/schema-register";
+import { loginRequestValidation } from "../../utils/validation-schemas/schema-login";
 export const router = express.Router();
 
 router.get("/whoami", ensureAuthentication, async (req: Request, res: Response, next: NextFunction) => {
@@ -40,11 +42,11 @@ router.get("/whoami", ensureAuthentication, async (req: Request, res: Response, 
  |
  *===================================================================*/
 router.post("/register", async (req: Request, res: Response) => {
-  const { email, password, username }: { email: string; password: string; username: string } = req.body;
-
-  if (!email || !password || !username) {
-    return res.redirect("/register/?error=please provide all values");
+  const isValidRequest = registerRequestValidation(req);
+  if (!isValidRequest) {
+    return res.redirect("/register/?error=invalid request");
   }
+  const { email, password, username }: { email: string; password: string; username: string } = req.body;
 
   // Check if Email or Username is not already existing
   const matchedEmail = await User.findOne({
@@ -55,8 +57,8 @@ router.post("/register", async (req: Request, res: Response) => {
     where: { username: username }
   });
 
-  if (matchedEmail) return res.status(500).send({ error: `email "${email}" already exist` });
-  if (matchedUsername) return res.status(500).send({ error: `user "${username}" already exist` });
+  if (matchedEmail) return res.redirect(`/register/?error=A user with email "${email}" already exist`);
+  if (matchedUsername) return res.redirect(`/register/?error=A user with username "${username}" already exist`);
 
   // Create hash password and save user
   const salt = await bcrypt.genSalt();
@@ -76,7 +78,7 @@ router.post("/register", async (req: Request, res: Response) => {
   });
 
   const emailLink = `${process.env.BASE_URL}/api/auth/register-confirm/${emailToken}`;
-  const html = `Please click this link to confirm your email <a href="${emailLink}">${emailLink}</a>`;
+  const html = `<html>Please click this link to confirm your email <a href="${emailLink}">${emailLink}</a><html>`;
 
   // Send Verification Email
   const AWS = require("aws-sdk");
@@ -91,9 +93,8 @@ router.post("/register", async (req: Request, res: Response) => {
       Destination: { ToAddresses: [email] },
       Message: {
         Body: {
-          Html: {
-            Data: html
-          }
+          Html: { Data: html },
+          Text: { Data: html }
         },
         Subject: {
           Data: "Account Verification"
@@ -102,15 +103,14 @@ router.post("/register", async (req: Request, res: Response) => {
       Source: process.env.AWS_SES_EMAIL_ADDRESS
     },
     (emailFailedError, data) => {
-      if (emailFailedError) {
-        console.log("Email Failed To Send Error", emailFailedError);
+      if (emailFailedError?.message) {
+        console.log("Email Failed To Send Error", emailFailedError.message);
         return res.redirect(`/register-confirm?verification_sent=false&email=${email}`);
+      } else {
+        return res.redirect(`/register-confirm?verification_sent=true&email=${email}`);
       }
     }
   );
-
-  // then redirect to home
-  res.redirect(`/register-confirm?success=true&email=${email}`);
 });
 
 /*==================================================================**
@@ -120,25 +120,34 @@ router.post("/register", async (req: Request, res: Response) => {
  *===================================================================*/
 router.get("/register-confirm/:token", async (req, res) => {
   const { token } = req.params;
+  if (!token || typeof token !== "string") {
+    return res.redirect("/register?error=invalid request");
+  }
+
   try {
     const hashSecret = process.env.EMAIL_TOKEN_HASH_SECRET || "";
     // @ts-ignore
     const { userEmail } = jwt.verify(token, hashSecret);
     const foundUser = await User.findOne({ where: { email: userEmail } });
-    // and he is not already verified
-    if (foundUser && foundUser.verified === false) {
-      await foundUser.update({ verified: true });
+    if (foundUser) {
+      // and he is not already verified
+      if (foundUser.verified === false) {
+        await foundUser.update({ verified: true });
+        // Success
+        return res.redirect("/login?success=Verification successful");
+      } else {
+        // else if he is already verified
+        return res.redirect("/login?error=Verification failed. User already verified");
+      }
     } else {
-      // return res.status(400).json({ error: 'Invalid verification link -u' })
-      return res.redirect("/register?result=failed");
+      // Else if user not found
+      return res.redirect("/register?error=Verification failed. Please complete registration");
     }
   } catch (error) {
     console.log(error);
     // res.status(400).json({ error: 'Invalid verification link -t' })
-    return res.redirect("/register?result=failed");
+    return res.redirect(`/register-confirm?error=Verification failed ${error}`);
   }
-
-  return res.redirect("/login?register_confirm=passed");
 });
 
 /*==================================================================**
@@ -146,14 +155,18 @@ router.get("/register-confirm/:token", async (req, res) => {
  |           POST       /resend-verification
  |
  *===================================================================*/
-router.post("/resend-verification", ensureAuthentication, async (req, res) => {
+// TODO Rate Limiter To prevent Spam
+router.post("/resend-verification", async (req, res) => {
   const email = req.body.email;
+  if (!email || typeof email !== "string") {
+    return res.redirect("/register?error=invalid request");
+  }
   const hashSecret = process.env.EMAIL_TOKEN_HASH_SECRET || "";
   const emailToken = jwt.sign({ userEmail: email }, hashSecret, {
     expiresIn: "5h"
   });
   const emailLink = `${process.env.BASE_URL}/api/auth/register-confirm/${emailToken}`;
-  const html = `Please click this link to confirm your email <a href="${emailLink}">${emailLink}</a>`;
+  const html = `<html>Please click this link to confirm your email <a href="${emailLink}">${emailLink}</a><html>`;
 
   const AWS = require("aws-sdk");
   const ses = new AWS.SES({
@@ -167,9 +180,8 @@ router.post("/resend-verification", ensureAuthentication, async (req, res) => {
       Destination: { ToAddresses: [email] },
       Message: {
         Body: {
-          Html: {
-            Data: html
-          }
+          Html: { Data: html },
+          Text: { Data: html }
         },
         Subject: {
           Data: "Account Verification"
@@ -178,13 +190,14 @@ router.post("/resend-verification", ensureAuthentication, async (req, res) => {
       Source: process.env.AWS_SES_EMAIL_ADDRESS
     },
     (emailFailedError, data) => {
-      if (emailFailedError) {
-        console.log("Email Failed To Send Error", emailFailedError);
+      if (emailFailedError?.message) {
+        console.log("Email Failed To Send Error", emailFailedError.message);
         return res.redirect(`/register-confirm?verification_sent=false&email=${email}`);
+      } else {
+        return res.redirect("/register-confirm?verification_sent=true");
       }
     }
   );
-  return res.redirect("/register-confirm?verification_sent=true");
 });
 
 /*==================================================================**
@@ -193,8 +206,12 @@ router.post("/resend-verification", ensureAuthentication, async (req, res) => {
  |
  *===================================================================*/
 router.post("/login", async (req: Request, res: Response) => {
-  const { nameOrEmail, password, username } = req.body;
-  const { attemptedUrl } = req.body;
+  const isValidRequest = loginRequestValidation(req);
+  if (!isValidRequest) {
+    return res.redirect("/login/?error=invalid request");
+  }
+
+  const { nameOrEmail, password } = req.body;
   try {
     const isUserLoggedIn = req?.session?.user ? true : false;
     if (isUserLoggedIn) {
@@ -229,9 +246,10 @@ router.post("/login", async (req: Request, res: Response) => {
       if (result === true) {
         // create a session for user
         req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username };
-
-        // Success
-        return res.redirect(`${req.session.returnTo || "/"}`);
+        console.log(`${foundUser.username} has signed in`);
+        // Success redirect
+        res.redirect(`${req.session.returnTo || "/"}`);
+        req.session.returnTo && delete req.session.returnTo;
       } else {
         // password comparision failed
         return res.redirect("/login?error=Invalid Login");
@@ -239,7 +257,7 @@ router.post("/login", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).redirect(`/login?error=${error}"`);
+    return res.status(500).redirect(`/login?error=${error}"`);
   }
 });
 

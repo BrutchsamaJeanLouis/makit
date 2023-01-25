@@ -9,7 +9,6 @@ import { createServer as createViteServer } from "vite";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
-// import apiRouter from "./src/server/api-router";
 
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
 
@@ -17,53 +16,19 @@ const resolve = (p: string) => path.resolve(__dirname, p);
 
 async function initialiseModels() {
   // Init Models
-  const User = await (await import("./src/database/models/user")).default;
-  const Project = await (await import("./src/database/models/project")).default;
-  const ProjectTenant = await (await import("./src/database/models/project_tenant")).default;
-  const ProjectInvite = await (await import("./src/database/models/project_invite")).default;
-  const Location = await (await import("./src/database/models/location")).default;
-  const Rating = await (await import("./src/database/models/rating")).default;
-  const Fund = await (await import("./src/database/models/fund")).default;
-  const Media = await (await import("./src/database/models/media")).default;
-  const Comment = await (await import("./src/database/models/comment")).default;
+  const shouldAutoSync = process.env.AUTO_SYNC_MODELS === "true" ? true : false;
 
-  // adding console logs after sync is called.
-  // This is to catch and determine what caused the sync to fail
-  await User.sync({ alter: true })
-    .then(() => console.log("server synced user Model"))
-    .catch(err => console.error("user Model failed to sync", err));
-
-  await Project.sync({ alter: true })
-    .then(() => console.log("server synced project Model"))
-    .catch(err => console.error("project Model failed to sync", err));
-
-  await ProjectTenant.sync({ alter: true })
-    .then(() => console.log("server synced projectTenant Model"))
-    .catch(err => console.error("projectTenant Model failed to sync", err));
-
-  await ProjectInvite.sync({ alter: true })
-    .then(() => console.log("server synced projectInvite Model"))
-    .catch(err => console.error("projectInvite Model failed to sync", err));
-
-  await Location.sync({ alter: true })
-    .then(() => console.log("server synced Location Model"))
-    .catch(err => console.error("location Model failed to sync", err));
-
-  await Rating.sync({ alter: true })
-    .then(() => console.log("server synced Rating Model"))
-    .catch(err => console.error("rating Model failed to sync", err));
-
-  await Fund.sync({ alter: true })
-    .then(() => console.log("server synced Fund Model"))
-    .catch(err => console.error("fund Model failed to sync", err));
-
-  await Media.sync({ alter: true })
-    .then(() => console.log("server synced Media Model"))
-    .catch(err => console.error("media Model failed to sync", err));
-
-  await Comment.sync({ alter: true })
-    .then(() => console.log("server synced Comment Model"))
-    .catch(err => console.error("comment Model failed to sync", err));
+  if (process.env.NODE_ENV === "development" && shouldAutoSync) {
+    const files = await fs.readdir("./src/database/models");
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const dbModel = await (await import(`./src/database/models/${file}`)).default;
+      dbModel
+        .sync({ alter: true })
+        .then(() => console.log(`successfully synced ${file} Model`))
+        .catch(err => console.error(`${file} Model failed to sync`, err));
+    }
+  }
 }
 
 const getStyleSheets = async () => {

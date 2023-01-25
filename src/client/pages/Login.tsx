@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../Context";
 import { useSearchParams } from "react-router-dom";
+import { connect } from "react-redux";
 
-export default function Login() {
+const Login = () => {
   const { name, setName } = useAppContext();
   const [urlQuery, setUrlQuery] = useSearchParams();
   const [serverError, setServerError] = useState("");
@@ -232,4 +233,6 @@ export default function Login() {
       </div>
     </div>
   );
-}
+};
+
+export default connect()(Login);

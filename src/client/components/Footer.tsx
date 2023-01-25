@@ -1,6 +1,7 @@
 import React from "react";
+import { connect } from "react-redux";
 
-export const Footer = () => {
+const Footer = () => {
   return (
     <footer className="bg-dark text-white mt-4" style={{ zIndex: 100 }}>
       <div className="container-fluid py-3">
@@ -27,3 +28,5 @@ export const Footer = () => {
     </footer>
   );
 };
+
+export default connect()(Footer);

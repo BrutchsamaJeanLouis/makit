@@ -5,7 +5,7 @@ import sequelize from "../sequelize-connection";
 // for typeScript typing
 export default class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Project>> {
   declare id: CreationOptional<number>;
-  declare name: string;
+  declare title: string;
   declare description: string;
 }
 
@@ -18,7 +18,7 @@ Project.init(
       autoIncrement: true,
       primaryKey: true
     },
-    name: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false
     },

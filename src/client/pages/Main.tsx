@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Footer } from "../components/Footer";
+import React from "react";
+import Footer from "../components/Footer";
 import { useAppContext } from "../Context";
-import { Route, Routes, useSearchParams } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Register from "./Register";
-import stringToBoolean from "../../utils/stringToBoolean";
 import Login from "./Login";
 import { RoutesEnum } from "../../../types/enums";
-import axios from "axios";
 import RegisterConfirm from "./RegisterConfirm";
 import Navbar from "../components/Navbar";
+import { connect } from "react-redux";
 
 const Main = () => {
   const { name, setName } = useAppContext();
@@ -38,4 +37,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default connect()(Main);
