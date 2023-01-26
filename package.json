@@ -30,7 +30,8 @@
     "clearDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:seed --seed clear-all.js",
     "createDB": "cd ./src/database && NODE_ENV=development npx sequelize-cli db:create",
     "ses-local": "npx aws-ses-local --outputDir ./aws-ses",
-    "s3-local": "npx serverless offline start"
+    "s3-local": "npx serverless offline start",
+    "killPorts": "node kill-ports.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.1",
@@ -99,6 +100,7 @@
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-react-hooks": "^4.6.0",
     "jsdom": "^20.0.3",
+    "kill-port": "^2.0.1",
     "postcss": "8.4.20",
     "prettier": "^2.8.1",
     "rimraf": "^3.0.2",
