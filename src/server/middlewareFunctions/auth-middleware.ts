@@ -17,3 +17,11 @@ export const ensureAuthentication = (req: Request, res: Response, next: NextFunc
     .status(302)
     .json({ redirect: "/login?error=please login to complete operation", error: "Login to complete operation" });
 };
+
+export const ensureLogout = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.session.user) {
+    return next;
+  }
+
+  return res.redirect("/");
+};

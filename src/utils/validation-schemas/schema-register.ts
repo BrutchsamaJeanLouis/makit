@@ -2,11 +2,18 @@ import { Request } from "express";
 import * as yup from "yup";
 import _ from "lodash";
 
+// eslint-disable-next-line no-useless-escape
+const passwordRegEx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+const PwdError = "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character";
+
 export const registerBodySchema: yup.AnyObjectSchema = yup.object({
-  url: yup.string().url().required(),
-  title: yup.string().min(8).max(32).required(),
-  content: yup.string().min(8).max(255).required(),
-  contact: yup.string().email().required()
+  username: yup.string().min(4, "Username Min 4 characters").required("Username is required"),
+  email: yup.string().email("Please enter a valid email").required("Email is required"),
+  password: yup.string().required("Please enter a password").matches(passwordRegEx, PwdError),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password"), null], "Passwords must match")
+    .required()
 });
 
 const exampleRequestWithYup = yup.object({

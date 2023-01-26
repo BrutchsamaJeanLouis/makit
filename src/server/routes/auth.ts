@@ -11,14 +11,14 @@ import Location from "../../database/models/location";
 import Media from "../../database/models/media";
 import Fund from "../../database/models/fund";
 import ProjectTenant from "../../database/models/project_tenant";
-import { RoutesEnum } from "../../../types/enums";
+import { RoutesEnum } from "../../utils/enums";
 import { Op } from "sequelize";
-import { ensureAuthentication } from "../middlewareFunctions/auth-middleware";
+import { ensureAuthentication, ensureLogout } from "../middlewareFunctions/auth-middleware";
 import { registerRequestValidation } from "../../utils/validation-schemas/schema-register";
 import { loginRequestValidation } from "../../utils/validation-schemas/schema-login";
 export const router = express.Router();
 
-router.get("/credentials", ensureAuthentication, async (req: Request, res: Response, next: NextFunction) => {
+router.get("/credentials", async (req: Request, res: Response, next: NextFunction) => {
   // return res.status(200).json({ testData: "Hi" });
   // to  make use of redirect like this
   // use form post instead of ajax/xhr on react
@@ -33,7 +33,7 @@ router.get("/credentials", ensureAuthentication, async (req: Request, res: Respo
       { model: ProjectTenant, include: [{ model: User }] }
     ]
   });
-  return res.json({ ...req.session.user });
+  return res.json(req.session.user || null);
 });
 
 /*==================================================================**
@@ -41,7 +41,7 @@ router.get("/credentials", ensureAuthentication, async (req: Request, res: Respo
  |              POST          /register
  |
  *===================================================================*/
-router.post("/register", async (req: Request, res: Response) => {
+router.post("/register", ensureLogout, async (req: Request, res: Response) => {
   const isValidRequest = registerRequestValidation(req);
   if (!isValidRequest) {
     return res.redirect("/register/?error=invalid request");

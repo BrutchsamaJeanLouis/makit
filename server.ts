@@ -166,12 +166,12 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
 }
 
 // Start Func
-(async function () {
+(function () {
   if (process.env.NODE_ENV) {
     require("dotenv").config({
       path: path.join(__dirname, `./.env.${process.env.NODE_ENV}`)
     });
-    await initialiseModels()
+    initialiseModels()
       .then(() => createServer())
       .catch(() => createServer());
   } else {

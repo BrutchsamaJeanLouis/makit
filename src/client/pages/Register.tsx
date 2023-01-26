@@ -3,6 +3,8 @@ import { useAppContext } from "../Context";
 import { useSearchParams } from "react-router-dom";
 import stringToBoolean from "../../utils/stringToBoolean";
 import { connect } from "react-redux";
+import { Formik } from "formik";
+import { registerBodySchema } from "../../utils/validation-schemas/schema-register";
 
 const Register = () => {
   const { name, setName } = useAppContext();
@@ -52,57 +54,121 @@ const Register = () => {
                 </div>
                 <h1 className="ls-tight font-bolder h2">Nice to see you!</h1>
               </div>
-              <form action="/api/auth/register" method="POST">
-                <div className="mb-4">
-                  <label className="form-label" htmlFor="username">
-                    Username
-                  </label>
-                  <input type="text" className="form-control form-control-muted" id="username" name="username" />
-                </div>
-                <div className="mb-4">
-                  <label className="form-label" htmlFor="email">
-                    Email
-                  </label>
-                  <input type="text" className="form-control form-control-muted" id="email" name="email" />
-                </div>
-                <div className="mb-4">
-                  <label className="form-label" htmlFor="password">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control form-control-muted"
-                    id="password"
-                    name="password"
-                    autoComplete="current-password"
-                  />
-                </div>
-                <div className="mb-5">
-                  <label className="form-label" htmlFor="confirm-password">
-                    Confirm Password
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control form-control-muted"
-                    id="confirm-password"
-                    name="confirmPassword"
-                    autoComplete="current-password"
-                  />
-                </div>
-                <div className="mb-5">
-                  <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="check_example" id="check_example" />
-                    <label className="form-check-label" htmlFor="check_example">
-                      I agree to the terms to use this website
-                    </label>
-                  </div>
-                </div>
-                <div>
-                  <button type="submit" className="btn btn-primary w-full">
-                    Sign Up
-                  </button>
-                </div>
-              </form>
+              <Formik
+                validationSchema={registerBodySchema}
+                initialValues={{ username: "", email: "", password: "", confirmPassword: "", terms: "false" }}
+                validate={values => {
+                  // free to directly mutate object here
+                  // and do free custom validation that does not reside in validationSchema above
+                  const errors: any = {};
+                  // eslint-disable-next-line no-constant-condition
+                  if (values.username === "error") {
+                    errors.username = "This is a bad username";
+                  }
+                  return errors;
+                }}
+                onSubmit={(values, { setSubmitting }) => {
+                  setTimeout(() => {
+                    console.log();
+                    setSubmitting(false);
+                  }, 500);
+                }}
+              >
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  isSubmitting
+                  /* and other goodies */
+                }) => (
+                  <form action="/api/auth/register" method="POST" onSubmit={handleSubmit}>
+                    {JSON.stringify(errors)}
+                    <div className="mb-4">
+                      <label className="form-label" htmlFor="username">
+                        {errors.username}
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control form-control-muted"
+                        id="username"
+                        name="username"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values.username}
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="form-label" htmlFor="email">
+                        Email
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control form-control-muted"
+                        id="email"
+                        name="email"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values.email}
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="form-label" htmlFor="password">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        className="form-control form-control-muted"
+                        id="password"
+                        name="password"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values.password}
+                        autoComplete="current-password"
+                      />
+                    </div>
+                    <div className="mb-5">
+                      <label className="form-label" htmlFor="confirm-password">
+                        Confirm Password
+                      </label>
+                      <input
+                        type="password"
+                        className="form-control form-control-muted"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values.confirmPassword}
+                        autoComplete="current-password"
+                      />
+                    </div>
+                    <div className="mb-5">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          name="terms"
+                          id="terms"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={values.terms}
+                        />
+                        <label className="form-check-label" htmlFor="terms">
+                          I agree to the terms to use this website
+                        </label>
+                      </div>
+                    </div>
+                    <div>
+                      <button type="submit" className="btn btn-primary w-full">
+                        Sign Up
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </Formik>
               <div className="py-5 text-center">
                 <span className="text-xs text-uppercase font-semibold">or</span>
               </div>

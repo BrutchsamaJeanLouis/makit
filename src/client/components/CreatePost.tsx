@@ -2,24 +2,24 @@ import { Formik } from "formik";
 import React from "react";
 import { connect } from "react-redux";
 
-export const CreatePost = props => {
+const CreatePost = props => {
   return (
     <Formik
       initialValues={{ email: "", password: "" }}
       validate={values => {
-        const errors = {};
-        if (!values.email) {
-          errors.email = "Required";
-        } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-          errors.email = "Invalid email address";
+        // free to directly mutate object here
+        const errors: any = {};
+        // eslint-disable-next-line no-constant-condition
+        if (!"a value errors") {
+          errors.myValue = "Required";
         }
         return errors;
       }}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
+          console.log();
           setSubmitting(false);
-        }, 400);
+        }, 500);
       }}
     >
       {({
