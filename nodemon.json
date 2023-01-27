@@ -1,10 +1,6 @@
 {
   "verbose": true,
   "ignore": ["*.test.js", "client/*"],
-  "watch": ["server.ts", "src/server"],
-  "ext": "js,mjs,json,ts",
-  "events": {
-    "crash": "kill-port 8080"
-  },
-  "delay": "3500"
+  "watch": ["server.ts", "src/server", "src/database", "src/utils"],
+  "ext": "js,mjs,json,ts"
 }

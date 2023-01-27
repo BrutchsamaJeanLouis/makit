@@ -1,5 +1,5 @@
 // @ts-ignore
-import React, { ReactElement, useEffect, useState } from "React";
+import React, { ReactElement, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { store } from "../redux/store";
 import { connect } from "react-redux";
@@ -13,16 +13,7 @@ const RequireLogin: React.FC<ComponentProps> = ({ view }: { view: ReactElement<a
   // const user = useSelector((rootState: RootState) => rootState.auth.user);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    verifyAuthState().then(() => setLoading(false));
-  }, []);
-
   const authState = store.getState().auth;
-
-  if (loading) {
-    // TODO replace with loading component
-    return <div>loading</div>;
-  }
 
   if (!authState.user) {
     return <Navigate to="/login?error=login to complete operation" replace />;

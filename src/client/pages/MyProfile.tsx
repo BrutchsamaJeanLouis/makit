@@ -1,6 +1,5 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { connect } from "react-redux";
+import { useSelector, connect } from "react-redux";
 import { RootState } from "../redux/store";
 
 const MyProfile = props => {

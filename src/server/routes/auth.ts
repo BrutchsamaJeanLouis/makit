@@ -16,7 +16,7 @@ import { Op } from "sequelize";
 import { ensureAuthentication, ensureLogout } from "../middlewareFunctions/auth-middleware";
 import { registerRequestValidation } from "../../utils/validation-schemas/schema-register";
 import { loginRequestValidation } from "../../utils/validation-schemas/schema-login";
-export const router = express.Router();
+const router = express.Router();
 
 router.get("/credentials", async (req: Request, res: Response, next: NextFunction) => {
   // return res.status(200).json({ testData: "Hi" });
@@ -25,6 +25,7 @@ router.get("/credentials", async (req: Request, res: Response, next: NextFunctio
   // return res.redirect("/");
   const proj = await Project.findAll({
     include: [
+      { model: User },
       { model: Rating },
       { model: Comment },
       { model: Location },
@@ -33,7 +34,31 @@ router.get("/credentials", async (req: Request, res: Response, next: NextFunctio
       { model: ProjectTenant, include: [{ model: User }] }
     ]
   });
+  const userId = proj[0].userId;
+  const Usr = proj[0].User;
   return res.json(req.session.user || null);
+});
+
+router.get("/refresh-perms", async (req: Request, res: Response) => {
+  try {
+    if (!req.session.user) {
+      return res.json({ result: "success" });
+    } else {
+      const dbUser: User | null = await User.findByPk(req.session.user.id, {
+        include: [{ model: ProjectTenant }]
+      });
+      const projectsAllowed = dbUser.ProjectTenants.map(p => p.projectId);
+      req.session.user = {
+        id: dbUser?.id,
+        username: dbUser?.username,
+        email: dbUser?.email,
+        projectAllowed: projectsAllowed
+      };
+      return res.json({ result: "success" });
+    }
+  } catch (err) {
+    return res.status(500).json({ message: "Server failure", error: err });
+  }
 });
 
 /*==================================================================**

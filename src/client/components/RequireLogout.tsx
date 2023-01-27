@@ -1,5 +1,5 @@
 // @ts-ignore
-import React, { ReactElement, useEffect, useState } from "React";
+import React, { ReactElement, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { RootState } from "../redux/store";
 import { connect } from "react-redux";

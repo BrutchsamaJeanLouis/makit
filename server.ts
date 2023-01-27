@@ -1,6 +1,7 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, Express, NextFunction } from "express";
 import fs from "fs/promises";
 import path from "path";
+import * as yup from "yup";
 import express from "express";
 import session from "express-session";
 import compression from "compression";
@@ -152,12 +153,22 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
       res.status(200).set({ "Content-Type": "text/html" }).end(html);
     } catch (e: any) {
       !isProd && vite.ssrFixStacktrace(e);
-      console.log(e.stack);
+      console.log("vite console log", e.stack);
       // If an error is caught, let Vite fix the stack trace so it maps back to
       // your actual source code.
       vite.ssrFixStacktrace(e);
       next(e);
     }
+  });
+
+  // Schema validation Error MiddleWare
+  app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+    if (error instanceof yup.ValidationError) {
+      console.log("server validation error", req.originalUrl);
+      return res.status(400).json({ message: error.message, errors: error.errors }); // status code is 400 by default
+    }
+
+    return res.status(500).json({ message: "Internal Server Error", error: error });
   });
   const port = process.env.SERVER_PORT || 8080;
   app.listen(Number(port), "0.0.0.0", () => {

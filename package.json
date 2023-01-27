@@ -9,7 +9,8 @@
   "author": "BrutchsamaJeanLouis",
   "license": "MIT",
   "scripts": {
-    "start": "concurrently \"NODE_ENV=development nodemon --exec 'ts-node server.ts'\" \"npx serverless offline start\" \"npx aws-ses-local --outputDir ./aws-ses\"",
+    "start": "npm-run-all --parallel s3-local ses-local server",
+    "start:concurrently": "concurrently \"NODE_ENV=development nodemon --exec 'ts-node server.ts'\" \"npx serverless offline start\" \"npx aws-ses-local --outputDir ./aws-ses\"",
     "server": "NODE_ENV=development nodemon --exec 'ts-node server.ts'",
     "client": "yarn build:client && vite --config vite.config.ts dev",
     "build": "rimraf dist && tsc -p tsconfig.prod.json && yarn build:client && yarn build:server && yarn copy-files",
@@ -100,6 +101,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "jsdom": "^20.0.3",
     "kill-port": "^2.0.1",
+    "npm-run-all": "^4.1.5",
     "postcss": "8.4.20",
     "prettier": "^2.8.1",
     "rimraf": "^3.0.2",

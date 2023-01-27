@@ -3,6 +3,7 @@
 import axios from "axios";
 import { store } from "../client/redux/store";
 import { setSessionUser } from "../client/redux/reducers/authReducer";
+const threeMinute = 180000;
 
 const verifyAuthState = async () => {
   await axios

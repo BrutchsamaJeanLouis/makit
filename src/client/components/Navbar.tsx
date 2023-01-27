@@ -2,62 +2,25 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { connect } from "react-redux";
 import { RootState } from "../redux/store";
+import axios from "axios";
 
 function Navbar() {
   const [isCollapsed, setIsCollapse] = useState(true);
-  const user = useSelector((reduxState: RootState) => reduxState.auth.user);
-  console.log(user);
+  const [userDropDownShow, setUserDropDownShow] = useState(false);
+  const user: any = useSelector((reduxState: RootState) => reduxState.auth.user);
+
+  const logout = async () => {
+    await axios.get("/logout");
+  };
 
   const dynamicClassName = isCollapsed ? "collapse navbar-collapse" : "navbar-collapse";
+  const shouldShowUserDropDown = isCollapsed === false ? "show" : userDropDownShow ? "show" : "";
   return (
-    // <nav className="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    //   <div className="container-fluid">
-    //     <a className="navbar-brand" href="#">
-    //       Fixed navbar
-    //     </a>
-    //     <button
-    //       onClick={() => setIsCollapse(!isCollapsed)}
-    //       className="navbar-toggler"
-    //       type="button"
-    //       data-bs-toggle="collapse"
-    //       data-bs-target="#navbarCollapse"
-    //       aria-controls="navbarCollapse"
-    //       aria-expanded="false"
-    //       aria-label="Toggle navigation"
-    //     >
-    //       <span className="navbar-toggler-icon"></span>
-    //     </button>
-    //     <div className={dynamicClassName} id="navbarCollapse">
-    //       <ul className="navbar-nav me-auto mb-2 mb-md-0">
-    //         <li className="nav-item">
-    //           <a className="nav-link active" aria-current="page" href="#">
-    //             Home
-    //           </a>
-    //         </li>
-    //         <li className="nav-item">
-    //           <a className="nav-link" href="#">
-    //             Link
-    //           </a>
-    //         </li>
-    //         <li className="nav-item">
-    //           <a className="nav-link disabled">Disabled</a>
-    //         </li>
-    //       </ul>
-    //       <form className="d-flex">
-    //         <input className="form-control me-2 rounded-pill bg-dark" type="search" placeholder="Search" aria-label="Search" />
-    //         <button className="btn btn-outline-success rounded-pill" type="submit">
-    //           <i className="bi bi-search" />
-    //         </button>
-    //       </form>
-    //     </div>
-    //   </div>
-    // </nav>
-
     <nav className="navbar navbar-expand-md navbar-dark fixed-top bg-dark px-0">
       <div className="container-xl">
         {/* <!-- Logo --> */}
         <a className="navbar-brand" href="/">
-          <img src="./static/android-chrome-512x512.png" style={{ width: "40px" }} className="h-8" alt="..." />
+          <img src="/static/android-chrome-512x512.png" style={{ width: "40px" }} className="h-8" alt="..." />
           <span className="text-white ps-2" style={{ fontSize: "1em" }}>
             Makit
           </span>
@@ -66,6 +29,7 @@ function Navbar() {
         <button
           className="navbar-toggler"
           type="button"
+          onClick={() => setIsCollapse(!isCollapsed)}
           data-bs-toggle="collapse"
           data-bs-target="#navbarCollapse"
           aria-controls="navbarCollapse"
@@ -75,7 +39,7 @@ function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
         {/* <!-- Collapse --> */}
-        <div className="collapse navbar-collapse" id="navbarCollapse">
+        <div className={dynamicClassName} id="navbarCollapse">
           {/* <!-- Nav --> */}
           <div className="navbar-nav mx-lg-auto">
             <a className="nav-item nav-link active" href="#" aria-current="page">
@@ -92,8 +56,40 @@ function Navbar() {
             </a>
           </div>
           {/* <!-- Right navigation --> */}
+          {user && (
+            <ul className="nav navbar-nav ms-auto pe-2">
+              <li className="nav-item dropdown">
+                <span
+                  className="btn btn-link nav-link bg-light rounded-circle text-black fs-5"
+                  style={{ width: "45px", height: "45px" }}
+                  onClick={() => {
+                    setUserDropDownShow(!userDropDownShow);
+                    setIsCollapse(true);
+                  }}
+                  onBlur={() => setUserDropDownShow(false)}
+                >
+                  {user?.username.charAt(0).toUpperCase()}
+                </span>
+                <div
+                  className={`dropdown-menu dropdown-menu-dark ${shouldShowUserDropDown}`}
+                  style={{ left: "auto", right: 0 }}
+                >
+                  <a href="/my-profile" className="dropdown-item">
+                    My Profile
+                  </a>
+                  <a href="#" className="dropdown-item">
+                    Settings
+                  </a>
+                  <div className="dropdown-divider"></div>
+                  <a href="/logout" className="dropdown-item">
+                    Logout
+                  </a>
+                </div>
+              </li>
+            </ul>
+          )}
           {!user && (
-            <div className="navbar-nav ms-lg-4">
+            <div className="navbar-nav ms-auto">
               <a className="nav-item nav-link" href="/login">
                 Sign in
               </a>
@@ -101,7 +97,7 @@ function Navbar() {
           )}
           {/* <!-- Action --> */}
           {!user && (
-            <div className="d-flex align-items-lg-center mt-3 mt-lg-0">
+            <div className="d-flex align-items-lg-center mt-lg-0">
               <a href="/register" className="btn btn-sm btn-primary w-full w-lg-auto">
                 Register
               </a>

@@ -9,11 +9,13 @@ export default class ProjectTenant extends Model<
   InferCreationAttributes<ProjectTenant>
 > {
   declare id: CreationOptional<number>;
+  declare userId: number;
 }
 
 // allowNull defaults to true if not set
 // const User = sequelize.define('User', {
 ProjectTenant.init(
+  //@ts-ignore
   {
     // Model attributes are defined here
     id: {
@@ -32,5 +34,6 @@ ProjectTenant.init(
 );
 
 ProjectTenant.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(ProjectTenant, { foreignKey: "userId" }); // reverse association
 ProjectTenant.belongsTo(Project, { foreignKey: "projectId" });
-Project.hasMany(ProjectTenant, { foreignKey: "projectId" });
+Project.hasMany(ProjectTenant, { foreignKey: "projectId" }); // reverse association

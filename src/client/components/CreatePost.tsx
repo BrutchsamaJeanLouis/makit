@@ -1,11 +1,19 @@
+import axios from "axios";
 import { Formik } from "formik";
 import React from "react";
 import { connect } from "react-redux";
 
 const CreatePost = props => {
+  const postProject = async (values: any) => {
+    const response = await axios
+      .post("/api/project/create", values)
+      .then(res => console.log("success /api/project/create", res.data))
+      .catch(err => console.log("error /api/project/create", err));
+  };
+
   return (
     <Formik
-      initialValues={{ email: "", password: "" }}
+      initialValues={{ title: "", description: "", tags: [] }}
       validate={values => {
         // free to directly mutate object here
         const errors: any = {};
@@ -17,7 +25,7 @@ const CreatePost = props => {
       }}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-          console.log();
+          postProject(values);
           setSubmitting(false);
         }, 500);
       }}
@@ -32,31 +40,63 @@ const CreatePost = props => {
         isSubmitting
         /* and other goodies */
       }) => (
-        <form>
-          <div className="mb-3 w-auto ">
-            <label htmlFor="exampleInputEmail1" className="form-label">
-              Email address
-            </label>
-            <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
-            <div id="emailHelp" className="form-text">
-              {"We'll"} never share your email with anyone else.
+        <form
+          onSubmit={handleSubmit}
+          className="col-md-12"
+          style={{ margin: "10px", minWidth: "300px", paddingBottom: "40px" }}
+        >
+          <div className="card mb-3 px-2 pt-3 mx-auto" style={{ backgroundColor: "#efefef", maxWidth: "1050px" }}>
+            <span className="text-center">
+              <h5>Create New Post</h5>
+            </span>
+            <div className="input-group input-group-lg">
+              <span className="input-group-text" id="inputGroup-sizing-lg">
+                Title
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                name="title"
+                value={values.title}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </div>
+            <div className="card-body" style={{ borderTopRightRadius: "50px" }}>
+              <textarea
+                className="form-control"
+                id="exampleFormControlTextarea1"
+                rows={4}
+                name="description"
+                value={values.description}
+                onBlur={handleBlur}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="card-footer">
+              <div className="float-end">
+                <button type="button" className="btn btn-secondary">
+                  <i className="bi bi-paperclip" />
+                  Add attachment
+                </button>
+              </div>
+            </div>
+            <div className="card-footer">
+              {/* <span style={{whiteSpace: 'nowrap'}}>
+              <input className='form-control form-control-lg' placeholder='comment' style={{ display: 'inline' }}/>
+              <button className='btn btn-primary' style={{display: 'inline' }}>Post</button>
+            </span> */}
+
+              <div className="input-group mb-3">
+                <div className="input-group-prepend" style={{ alignItems: "center", display: "flex" }}>
+                  <button className="btn btn-primary" type="submit" style={{ marginLeft: "10px" }}>
+                    Publish
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="mb-3">
-            <label htmlFor="exampleInputPassword1" className="form-label">
-              Password
-            </label>
-            <input type="password" className="form-control" id="exampleInputPassword1" />
-          </div>
-          <div className="mb-3 form-check">
-            <input type="checkbox" className="form-check-input" id="exampleCheck1" />
-            <label className="form-check-label" htmlFor="exampleCheck1">
-              Check me out
-            </label>
-          </div>
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
+          <hr />
         </form>
       )}
     </Formik>
