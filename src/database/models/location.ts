@@ -12,6 +12,8 @@ import Project from "./project";
 import sequelize from "../sequelize-connection";
 
 export default class Location extends Model<InferAttributes<Location>, InferCreationAttributes<Location>> {
+  // Only Used for typescript to pick up intellisense and types
+  // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare address: string;
   declare city: string;
@@ -21,6 +23,7 @@ export default class Location extends Model<InferAttributes<Location>, InferCrea
 
 // allowNull defaults to true if not set
 Location.init(
+  // @ts-ignore
   {
     id: {
       type: DataTypes.INTEGER,

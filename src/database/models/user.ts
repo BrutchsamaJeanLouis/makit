@@ -1,18 +1,23 @@
 import { DataTypes, Model, Optional, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import sequelize from "../sequelize-connection";
+import ProjectTenant from "./project_tenant";
 
 // for typeScript typing
 export default class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  // Only Used for typescript to pick up intellisense and types
+  // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare username: string;
   declare email: string;
   declare company: string;
   declare password: string;
   declare verified?: boolean;
+  declare ProjectTenants: CreationOptional<ProjectTenant[]>;
 }
 
 // allowNull defaults to true if not set
 User.init(
+  // @ts-ignore
   {
     // Model attributes are defined here
     id: {

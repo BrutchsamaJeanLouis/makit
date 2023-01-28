@@ -4,12 +4,15 @@ import User from "./user";
 import sequelize from "../sequelize-connection";
 
 export default class Fund extends Model<InferAttributes<Fund>, InferCreationAttributes<Fund>> {
+  // Only Used for typescript to pick up intellisense and types
+  // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare amount: number;
 }
 
 // allowNull defaults to true if not set
 Fund.init(
+  // @ts-ignore
   {
     id: {
       type: DataTypes.INTEGER,

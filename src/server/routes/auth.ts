@@ -23,19 +23,19 @@ router.get("/credentials", async (req: Request, res: Response, next: NextFunctio
   // to  make use of redirect like this
   // use form post instead of ajax/xhr on react
   // return res.redirect("/");
-  const proj = await Project.findAll({
-    include: [
-      { model: User },
-      { model: Rating },
-      { model: Comment },
-      { model: Location },
-      { model: Media },
-      { model: Fund },
-      { model: ProjectTenant, include: [{ model: User }] }
-    ]
-  });
-  const userId = proj[0].userId;
-  const Usr = proj[0].User;
+  // const proj = await Project.findAll({
+  //   include: [
+  //     { model: User },
+  //     { model: Rating },
+  //     { model: Comment },
+  //     { model: Location },
+  //     { model: Media },
+  //     { model: Fund },
+  //     { model: ProjectTenant, include: [{ model: User }] }
+  //   ]
+  // }).catch(err => console.log("Error from api/auth/credentials", err));
+  // const userId = proj && proj[0]?.userId;
+  // const Usr = proj && proj[0]?.User;
   return res.json(req.session.user || null);
 });
 
@@ -47,13 +47,16 @@ router.get("/refresh-perms", async (req: Request, res: Response) => {
       const dbUser: User | null = await User.findByPk(req.session.user.id, {
         include: [{ model: ProjectTenant }]
       });
-      const projectsAllowed = dbUser.ProjectTenants.map(p => p.projectId);
-      req.session.user = {
-        id: dbUser?.id,
-        username: dbUser?.username,
-        email: dbUser?.email,
-        projectAllowed: projectsAllowed
-      };
+
+      if (dbUser) {
+        const projectsAllowed: number[] = dbUser.ProjectTenants.map((p: ProjectTenant) => p.projectId);
+        req.session.user = {
+          id: dbUser.id,
+          username: dbUser.username,
+          email: dbUser.email,
+          projectsAllowed: projectsAllowed
+        };
+      }
       return res.json({ result: "success" });
     }
   } catch (err) {
@@ -254,7 +257,8 @@ router.post("/login", async (req: Request, res: Response) => {
             email: { [Op.eq]: nameOrEmail }
           }
         ]
-      }
+      },
+      include: [{ model: ProjectTenant }]
     });
 
     if (!foundUser) {
@@ -270,7 +274,8 @@ router.post("/login", async (req: Request, res: Response) => {
     bcrypt.compare(password, dBHashedPassword, (err, result) => {
       if (result === true) {
         // create a session for user
-        req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username };
+        const projectsAllowed = foundUser.ProjectTenants.map((p: ProjectTenant) => p.projectId);
+        req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username, projectsAllowed };
         console.log(`${foundUser.username} has signed in`);
         // Success redirect
         res.redirect(`${req.session.returnTo || "/"}`);

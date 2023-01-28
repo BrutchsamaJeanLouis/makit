@@ -5,12 +5,15 @@ import sequelize from "../sequelize-connection";
 
 // for typeScript typing
 export default class Rating extends Model<InferAttributes<Rating>, InferCreationAttributes<Rating>> {
+  // Only Used for typescript to pick up intellisense and types
+  // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare ratingType: string;
 }
 
 // allowNull defaults to true if not set
 Rating.init(
+  // @ts-ignore
   {
     // Model attributes are defined here
     id: {

@@ -8,8 +8,11 @@ export default class ProjectTenant extends Model<
   InferAttributes<ProjectTenant>,
   InferCreationAttributes<ProjectTenant>
 > {
+  // Only Used for typescript to pick up intellisense and types
+  // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare userId: number;
+  declare projectId: number;
 }
 
 // allowNull defaults to true if not set

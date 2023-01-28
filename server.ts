@@ -9,6 +9,7 @@ import serveStatic from "serve-static";
 import { createServer as createViteServer } from "vite";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+import { ModelDefined } from "sequelize";
 dayjs.extend(duration);
 
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
@@ -20,14 +21,38 @@ async function initialiseModels() {
   const shouldAutoSync = process.env.AUTO_SYNC_MODELS === "true" ? true : false;
 
   if (process.env.NODE_ENV === "development" && shouldAutoSync) {
+    const syncOrder = [
+      "user.ts",
+      "project.ts",
+      "project_invite.ts",
+      "project_tenant.ts",
+      "comment.ts",
+      "location.ts",
+      "media.ts",
+      "fund.ts",
+      "rating.ts",
+      "hashtag.ts"
+    ];
     const files = await fs.readdir("./src/database/models");
+    files.sort(function (a, b) {
+      if (syncOrder.indexOf(a) === -1 && syncOrder.indexOf(b) === -1) return 0;
+      if (syncOrder.indexOf(a) === -1) return 1;
+      if (syncOrder.indexOf(b) === -1) return -1;
+      return syncOrder.indexOf(a) - syncOrder.indexOf(b);
+    });
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const dbModel = await (await import(`./src/database/models/${file}`)).default;
-      dbModel
+      const dbModel: ModelDefined<any, any> = await (await import(`./src/database/models/${file}`)).default;
+      await dbModel
         .sync({ alter: true })
-        .then(() => console.log(`successfully synced ${file} Model`))
-        .catch(err => console.error(`${file} Model failed to sync`, err));
+        .then(async () => {
+          // await new Promise(r => setTimeout(r, 100));
+          console.log(`successfully synced ${file} Model`);
+        })
+        .catch(async err => {
+          // await new Promise(r => setTimeout(r, 100));
+          console.error(`${file} Model failed to sync`, err?.message || err);
+        });
     }
   }
 }

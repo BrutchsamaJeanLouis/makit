@@ -4,12 +4,15 @@ import User from "./user";
 import sequelize from "../sequelize-connection";
 
 export default class Comment extends Model<InferAttributes<Comment>, InferCreationAttributes<Comment>> {
+  // Only Used for typescript to pick up intellisense and types
+  // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare value: string;
 }
 
 // allowNull defaults to true if not set
 Comment.init(
+  // @ts-ignore
   {
     id: {
       type: DataTypes.INTEGER,

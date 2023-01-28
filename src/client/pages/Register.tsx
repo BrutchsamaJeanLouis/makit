@@ -56,13 +56,15 @@ const Register = () => {
               </div>
               <Formik
                 validationSchema={registerBodySchema}
-                initialValues={{ username: "", email: "", password: "", confirmPassword: "", terms: "false" }}
+                initialValues={{ username: "", email: "", password: "", confirmPassword: "", terms: false }}
                 validate={values => {
                   // free to directly mutate object here
                   // and do free custom validation that does not reside in validationSchema above
                   const errors: any = {};
                   // eslint-disable-next-line no-constant-condition
-                  if (values.username === "error") {
+                  const terms = stringToBoolean(values.terms.toString()) || false;
+                  values.terms = terms;
+                  if (values.username.toLowerCase() === "admin") {
                     errors.username = "This is a bad username";
                   }
                   return errors;
@@ -154,7 +156,7 @@ const Register = () => {
                           id="terms"
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          value={values.terms}
+                          value={values.terms.toString()}
                         />
                         <label className="form-check-label" htmlFor="terms">
                           I agree to the terms to use this website

@@ -3,6 +3,8 @@ import Project from "./project";
 import sequelize from "../sequelize-connection";
 
 export default class Media extends Model<InferAttributes<Media>, InferCreationAttributes<Media>> {
+  // Only Used for typescript to pick up intellisense and types
+  // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare mediaType: string;
   declare mediaFormat: string;
@@ -12,6 +14,7 @@ export default class Media extends Model<InferAttributes<Media>, InferCreationAt
 
 // allowNull defaults to true if not set
 Media.init(
+  // @ts-ignore
   {
     // Model attributes are defined here
     id: {

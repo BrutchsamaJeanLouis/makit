@@ -7,6 +7,7 @@ declare module "express-session" {
           id: number;
           email: string;
           username: string;
+          projectsAllowed: number[];
         }
       | undefined
       | null;
