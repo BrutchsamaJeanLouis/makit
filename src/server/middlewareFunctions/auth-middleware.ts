@@ -20,7 +20,7 @@ export const ensureAuthentication = (req: Request, res: Response, next: NextFunc
 
 export const ensureLogout = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session.user) {
-    return next;
+    return next();
   }
 
   return res.redirect("/");

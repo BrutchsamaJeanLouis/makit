@@ -56,7 +56,13 @@ const Login = () => {
                   <label className="form-label" htmlFor="nameOrEmail">
                     Username/Email
                   </label>
-                  <input type="text" className="form-control form-control-muted" id="nameOrEmail" name="nameOrEmail" />
+                  <input
+                    type="text"
+                    className="form-control form-control-muted"
+                    id="nameOrEmail"
+                    name="nameOrEmail"
+                    required
+                  />
                 </div>
                 <div className="mb-5">
                   <label className="form-label" htmlFor="password">
@@ -67,6 +73,7 @@ const Login = () => {
                     className="form-control form-control-muted"
                     id="password"
                     name="password"
+                    required
                     autoComplete="current-password"
                   />
                 </div>

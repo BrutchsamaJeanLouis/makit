@@ -1,15 +1,23 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { FormEventHandler, FormHTMLAttributes, MutableRefObject, useEffect, useRef, useState } from "react";
 import { useAppContext } from "../Context";
 import { useSearchParams } from "react-router-dom";
 import stringToBoolean from "../../utils/stringToBoolean";
 import { connect } from "react-redux";
-import { Formik } from "formik";
+import { Formik, withFormik } from "formik";
 import { registerBodySchema } from "../../utils/validation-schemas/schema-register";
+import { ValidationError } from "yup";
 
 const Register = () => {
   const { name, setName } = useAppContext();
   const [urlQuery, setUrlQuery] = useSearchParams();
   const [serverError, setServerError] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [terms, setTerms] = useState(false);
+  const [touched, setTouched] = useState({});
+  const [errors, setErrors]: any = useState({});
 
   useEffect(() => {
     console.log("register page mounted the DOM with server data >>", name, serverError);
@@ -22,6 +30,63 @@ const Register = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Here we are doing manual validation due to formik not supporting HTTP form post
+  // Resulting in writing more code than needed
+  const validateForm = (checkIfFieldWasTouched: boolean) => {
+    const formData = {
+      username: username,
+      email: email,
+      password: password,
+      confirmPassword: confirmPassword,
+      terms: terms
+    };
+    const newErrors = {};
+    registerBodySchema.validate(formData, { abortEarly: false }).catch((errs: ValidationError) => {
+      errs.inner.forEach((e: ValidationError) => {
+        const field = e.path || "";
+        const message = e.message;
+        // console.log(errs.message);
+        // if the field was interacted with
+        if (checkIfFieldWasTouched) {
+          if (touched[field]) {
+            // add to newErrors.fieldName
+            newErrors[field] = message;
+          }
+        } else {
+          newErrors[field] = message;
+        }
+      });
+      setErrors(newErrors);
+    });
+  };
+
+  useEffect(() => {
+    validateForm(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [touched, username, email, password, confirmPassword, terms]);
+
+  const setElementAsTouched = (htmlField: any) => {
+    setTouched({ ...touched, [htmlField]: true });
+  };
+
+  const handleFormSubmit = async e => {
+    e.preventDefault();
+    const formData = {
+      username,
+      email,
+      password,
+      confirmPassword,
+      terms
+    };
+    const isFormValid = await registerBodySchema.isValid(formData);
+
+    if (isFormValid) {
+      e.target.submit();
+    } else {
+      validateForm(false);
+    }
+  };
 
   return (
     <div className="px-5 py-5 p-lg-0 bg-surface-secondary">
@@ -54,123 +119,89 @@ const Register = () => {
                 </div>
                 <h1 className="ls-tight font-bolder h2">Nice to see you!</h1>
               </div>
-              <Formik
-                validationSchema={registerBodySchema}
-                initialValues={{ username: "", email: "", password: "", confirmPassword: "", terms: false }}
-                validate={values => {
-                  // free to directly mutate object here
-                  // and do free custom validation that does not reside in validationSchema above
-                  const errors: any = {};
-                  // eslint-disable-next-line no-constant-condition
-                  const terms = stringToBoolean(values.terms.toString()) || false;
-                  values.terms = terms;
-                  if (values.username.toLowerCase() === "admin") {
-                    errors.username = "This is a bad username";
-                  }
-                  return errors;
-                }}
-                onSubmit={(values, { setSubmitting }) => {
-                  setTimeout(() => {
-                    console.log();
-                    setSubmitting(false);
-                  }, 500);
-                }}
-              >
-                {({
-                  values,
-                  errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  isSubmitting
-                  /* and other goodies */
-                }) => (
-                  <form action="/api/auth/register" method="POST" onSubmit={handleSubmit}>
-                    {JSON.stringify(errors)}
-                    <div className="mb-4">
-                      <label className="form-label" htmlFor="username">
-                        {errors.username}
-                        Username
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control form-control-muted"
-                        id="username"
-                        name="username"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.username}
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="form-label" htmlFor="email">
-                        Email
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control form-control-muted"
-                        id="email"
-                        name="email"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.email}
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="form-label" htmlFor="password">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        className="form-control form-control-muted"
-                        id="password"
-                        name="password"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.password}
-                        autoComplete="current-password"
-                      />
-                    </div>
-                    <div className="mb-5">
-                      <label className="form-label" htmlFor="confirm-password">
-                        Confirm Password
-                      </label>
-                      <input
-                        type="password"
-                        className="form-control form-control-muted"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.confirmPassword}
-                        autoComplete="current-password"
-                      />
-                    </div>
-                    <div className="mb-5">
-                      <div className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          name="terms"
-                          id="terms"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          value={values.terms.toString()}
-                        />
-                        <label className="form-check-label" htmlFor="terms">
-                          I agree to the terms to use this website
-                        </label>
-                      </div>
-                    </div>
-                    <div>
-                      <button type="submit" className="btn btn-primary w-full">
-                        Sign Up
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </Formik>
+              <form action="/api/auth/register" method="POST" onSubmit={handleFormSubmit}>
+                {JSON.stringify(errors)}
+                <div className="mb-4">
+                  <label className="form-label" htmlFor="username">
+                    {errors.username}
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control form-control-muted"
+                    id="username"
+                    name="username"
+                    onChange={e => setUsername(e.target.value)}
+                    onBlur={() => setElementAsTouched("username")}
+                    value={username}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="form-label" htmlFor="email">
+                    Email
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control form-control-muted"
+                    id="email"
+                    name="email"
+                    onChange={e => setEmail(e.target.value)}
+                    onBlur={() => setElementAsTouched("email")}
+                    value={email}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="form-label" htmlFor="password">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control form-control-muted"
+                    id="password"
+                    name="password"
+                    onChange={e => setPassword(e.target.value)}
+                    onBlur={() => setElementAsTouched("password")}
+                    value={password}
+                    autoComplete="current-password"
+                  />
+                </div>
+                <div className="mb-5">
+                  <label className="form-label" htmlFor="confirm-password">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control form-control-muted"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    onBlur={() => setElementAsTouched("confirmPassword")}
+                    value={confirmPassword}
+                    autoComplete="current-password"
+                  />
+                </div>
+                <div className="mb-5">
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      name="terms"
+                      id="terms"
+                      onChange={e => setTerms(!stringToBoolean(e.target.value))}
+                      onBlur={() => setElementAsTouched("terms")}
+                      value={terms.toString()}
+                    />
+                    <label className="form-check-label" htmlFor="terms">
+                      I agree to the terms to use this website
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <button type="submit" className="btn btn-primary w-full">
+                    Sign Up
+                  </button>
+                </div>
+              </form>
               <div className="py-5 text-center">
                 <span className="text-xs text-uppercase font-semibold">or</span>
               </div>

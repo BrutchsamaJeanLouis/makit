@@ -11,7 +11,7 @@ export default class User extends Model<InferAttributes<User>, InferCreationAttr
   declare email: string;
   declare company: string;
   declare password: string;
-  declare verified?: boolean;
+  declare verified: boolean;
   declare ProjectTenants: CreationOptional<ProjectTenant[]>;
 }
 

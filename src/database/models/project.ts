@@ -41,7 +41,10 @@ Project.init(
       allowNull: false
     },
     visibility: {
-      type: DataTypes.ENUM(ProjectVisibility.PUBLIC, ProjectVisibility.PRIVATE, ProjectVisibility.HIDDEN)
+      type: DataTypes.ENUM,
+      values: [ProjectVisibility.PUBLIC, ProjectVisibility.PRIVATE, ProjectVisibility.HIDDEN],
+      defaultValue: ProjectVisibility.PRIVATE,
+      allowNull: false
     }
   },
   {
