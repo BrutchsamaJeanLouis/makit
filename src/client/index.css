@@ -10,3 +10,22 @@ body {
   padding-top: 4.5rem;
   min-height: 100vh;
 }
+
+.palette-pink {
+  background-color: #ec5f5f;
+}
+
+.palette-pink.btn:hover {
+  background-color: #c74f4f;
+}
+
+.no-input-border[type=text]{ 
+  border: 0;
+  border: 1px solid #c74f4f;
+  padding-left: 10px;
+  outline: 0;
+}
+
+.point {
+  cursor: pointer;
+}

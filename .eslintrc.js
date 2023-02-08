@@ -26,6 +26,6 @@ module.exports = {
     "no-unused-vars": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "off"
   }
 };

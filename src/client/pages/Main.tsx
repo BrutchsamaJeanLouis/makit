@@ -15,6 +15,9 @@ import MyProfile from "./MyProfile";
 import verifyAuthState from "../../utils/verifyAuthState";
 import { useState } from "react";
 import axios from "axios";
+import ViewProject from "./ViewProject";
+import { LoadingSpinnerWholePage } from "../components/LoadingSpinners";
+import HomeFeed from "./HomeFeed";
 const threeMinute = 180000;
 
 const Main = () => {
@@ -34,11 +37,7 @@ const Main = () => {
   }, []);
 
   if (loadingCredentials) {
-    return (
-      <div className="d-flex w-100 h-100 justify-content-center">
-        <div className="spinner-border text-danger" role="status" />
-      </div>
-    );
+    return <LoadingSpinnerWholePage />;
   }
 
   return (
@@ -49,13 +48,13 @@ const Main = () => {
           <Routes>
             {/* Do not use Raw Strings as routes. Add it to enums stored in ./utils/enums */}
             {/* TODO add all URLS in the enum and replace them on server and client */}
-            <Route index element={<div>Home Page</div>} />
+            <Route index element={<HomeFeed />} />
             <Route path={RoutesEnum.REGISTERCONFIRM} element={<RegisterConfirm />} />
             <Route path={RoutesEnum.REGISTER} element={<RequireLogout view={<Register />} />} />
             <Route path={RoutesEnum.LOGIN} element={<RequireLogout view={<Login />} />} />
             <Route path="/list-project" element={<RequireLogin view={<CreatePost />} />} />
             <Route path={RoutesEnum.MYPROFILE} element={<RequireLogin view={<MyProfile />} />} />
-            <Route path="/project/:projectId" element={<div>Item Number</div>} />
+            <Route path="/project/:projectId" element={<RequireLogin view={<ViewProject />} />} />
             <Route path="*" element={<p>Theres nothing here: 404!</p>} />
           </Routes>
         </div>

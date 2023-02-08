@@ -2,12 +2,7 @@ import { Sequelize, DataTypes, Model, CreationOptional, InferAttributes, InferCr
 import User from "./user";
 import sequelize from "../sequelize-connection";
 import ProjectTenant from "./project_tenant";
-
-export enum ProjectVisibility {
-  PUBLIC = "public",
-  PRIVATE = "private",
-  HIDDEN = "hidden"
-}
+import { ProjectPhase, ProjectVisibility } from "../../utils/enums";
 
 // for typeScript typing
 export default class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Project>> {
@@ -18,6 +13,7 @@ export default class Project extends Model<InferAttributes<Project>, InferCreati
   declare description: string;
   declare userId?: number;
   declare visibility: ProjectVisibility;
+  declare phase: ProjectPhase;
   declare User: CreationOptional<User>;
   declare ProjectTenants: CreationOptional<ProjectTenant>;
 }
@@ -41,9 +37,11 @@ Project.init(
       allowNull: false
     },
     visibility: {
-      type: DataTypes.ENUM,
-      values: [ProjectVisibility.PUBLIC, ProjectVisibility.PRIVATE, ProjectVisibility.HIDDEN],
-      defaultValue: ProjectVisibility.PRIVATE,
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    phase: {
+      type: DataTypes.STRING,
       allowNull: false
     }
   },

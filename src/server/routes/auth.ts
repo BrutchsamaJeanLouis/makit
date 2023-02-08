@@ -19,23 +19,6 @@ import { loginRequestValidation } from "../../utils/validation-schemas/schema-lo
 const router = express.Router();
 
 router.get("/credentials", async (req: Request, res: Response, next: NextFunction) => {
-  // return res.status(200).json({ testData: "Hi" });
-  // to  make use of redirect like this
-  // use form post instead of ajax/xhr on react
-  // return res.redirect("/");
-  // const proj = await Project.findAll({
-  //   include: [
-  //     { model: User },
-  //     { model: Rating },
-  //     { model: Comment },
-  //     { model: Location },
-  //     { model: Media },
-  //     { model: Fund },
-  //     { model: ProjectTenant, include: [{ model: User }] }
-  //   ]
-  // }).catch(err => console.log("Error from api/auth/credentials", err));
-  // const userId = proj && proj[0]?.userId;
-  // const Usr = proj && proj[0]?.User;
   return res.json(req.session.user || null);
 });
 
