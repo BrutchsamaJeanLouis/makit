@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Button, Overlay, OverlayTrigger, Popover } from "react-bootstrap";
 import Project from "../../database/models/project";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
+import { useNavigate } from "react-router-dom";
 
 // const optionsPopover = (props) => {
 //   return (
@@ -18,33 +22,20 @@ type ProjectCardProp = {
   editable?: boolean;
 };
 
-const userCircle = {
-  position: "relative",
-  backgroundColor: "grey",
-  borderRadius: "50%",
-  width: "50px",
-  height: "50px",
-  display: "inline-block",
-  lineHeight: "350%",
-  textAlign: "center",
-  marginRight: "10px"
-};
-
 export default function Projectcard({ project, editable = false }: ProjectCardProp) {
+  const navigateToPage = useNavigate();
   const [showOptions, setShowOptions] = useState(false);
 
   const { User } = project;
 
   return (
-    <div className="col-md-3 w-100 my-3" style={{ minWidth: "300px" }}>
+    <div className="project-card col-md-3 w-100 my-3">
       <div className="card mb-3">
         <h5 className="card-header">
-          <div className="rounded-circle bg-secondary" style={userCircle}>
-            {User.username.charAt(0).toUpperCase()}
-          </div>
+          <div className="rounded-circle bg-secondary user-circle">{User.username.charAt(0).toUpperCase()}</div>
           <div className="post-user" style={{ display: "inline-block" }}>
             {User.username}
-            <p style={{ fontSize: "0.7em" }}>{project.createdAt}</p>
+            <p style={{ fontSize: "0.7em" }}>{project.createdAt.toString()}</p>
           </div>
           {editable && (
             <div className="float-end" style={{ cursor: "pointer" }}>
@@ -52,10 +43,18 @@ export default function Projectcard({ project, editable = false }: ProjectCardPr
             </div>
           )}
         </h5>
-        <div className="card-body" style={{ borderTopRightRadius: "50px" }}>
-          <h5 className="card-title">{project.name}</h5>
-          <p className="card-text">{project.description}</p>
-          <button href="#" className="btn btn-link px-0" style={{ color: "#ec5f5f" }}>
+        <div
+          className="card-body point"
+          style={{ borderTopRightRadius: "50px" }}
+          onClick={() => navigateToPage(`/view-project/${project.id}`)}
+        >
+          <h5 className="card-title">{project.title}</h5>
+          <p className="card-text">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} className="markdown">
+              {project.description}
+            </ReactMarkdown>
+          </p>
+          <button className="btn btn-link px-0" style={{ color: "#ec5f5f" }}>
             Read more
           </button>
         </div>

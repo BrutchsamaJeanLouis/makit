@@ -8,6 +8,8 @@ export default class Fund extends Model<InferAttributes<Fund>, InferCreationAttr
   // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare amount: number;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

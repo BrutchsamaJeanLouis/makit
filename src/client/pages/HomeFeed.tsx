@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Project from "../../database/models/project";
 import { LoadingSpinnerWholePage } from "../components/LoadingSpinners";
-import MarkDownText from "../components/MarkDownText";
+import "./HomeFeed.css";
 
 const HomeFeed = props => {
   const navigateToPage = useNavigate();
@@ -30,8 +30,7 @@ const HomeFeed = props => {
   if (loading) return <LoadingSpinnerWholePage />;
 
   return (
-    <div className="row px-5 justify-content-center">
-      <MarkDownText />
+    <div className="home-feed row justify-content-center">
       {/* side view only desktops */}
       <div className="col-md-3 d-none d-lg-flex">
         <div className="card" style={{ minHeight: "70vh" }}>

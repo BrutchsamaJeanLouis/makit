@@ -6,6 +6,8 @@ export default class HashTag extends Model<InferAttributes<HashTag>, InferCreati
   // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare name: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

@@ -9,6 +9,8 @@ export default class Rating extends Model<InferAttributes<Rating>, InferCreation
   // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare ratingType: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

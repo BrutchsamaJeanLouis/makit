@@ -16,6 +16,8 @@ export default class Project extends Model<InferAttributes<Project>, InferCreati
   declare phase: ProjectPhase;
   declare User: CreationOptional<User>;
   declare ProjectTenants: CreationOptional<ProjectTenant>;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

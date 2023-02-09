@@ -11,6 +11,8 @@ export default class ProjectInvite extends Model<
   // Only Used for typescript to pick up intellisense and types
   // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

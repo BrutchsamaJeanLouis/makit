@@ -13,6 +13,8 @@ export default class User extends Model<InferAttributes<User>, InferCreationAttr
   declare password: string;
   declare verified: boolean;
   declare ProjectTenants: CreationOptional<ProjectTenant[]>;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

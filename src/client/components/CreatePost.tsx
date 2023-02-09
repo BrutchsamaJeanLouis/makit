@@ -1,13 +1,15 @@
 import axios, { AxiosError } from "axios";
 import { Formik } from "formik";
-import React, { MutableRefObject, useRef, useState } from "react";
+import React, { MutableRefObject, useCallback, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { ProjectPhase, ProjectVisibility } from "../../utils/enums";
 import Dropdown from "react-bootstrap/Dropdown";
-import { DropdownButton } from "react-bootstrap";
 import { createProjectFormSchema } from "../../utils/validation-schemas/schema-create-post";
 import { useNavigate } from "react-router-dom";
-import { LoadingSpinnerComponent } from "./LoadingSpinners";
+import SimpleMDE from "react-simplemde-editor";
+import "easymde/dist/easymde.min.css";
+
+import _ from "lodash"
 
 const CreatePost = props => {
   const navigateToPage = useNavigate();
@@ -19,19 +21,31 @@ const CreatePost = props => {
       .post("/api/project/create", values)
       .then(res => {
         console.log("success /api/project/create", res.data);
-        navigateToPage(`/project/${res.data.newProject.id}`);
+        navigateToPage(`/view-project/${res.data.newProject.id}`);
       })
       .catch((err: AxiosError) => console.log("error /api/project/create", err.response?.data));
   };
 
   const formatMyHashTags = (tags: string[]): string[] => {
+    //TODO handle hashtags with spaces currently not working
     const formattedTags = tags.map(currentTag => {
-      let format;
+      let format = currentTag.trim();
+
+      // if empty string
+      if (!format) {
+        return;
+      }
+
+      // replace spaces only if it doesn't end with a space
+      format = currentTag.replaceAll(" ", "_");
+      format = currentTag.replaceAll("  ", "_");
+      format = currentTag.replaceAll("   ", "_");
+      format = currentTag.replaceAll("    ", "_");
 
       // if the user only entered #
       if (currentTag === "#" || currentTag === "") {
         //return nothing (don't add to array)
-        return;
+        return format;
       }
       // if tag doesn't starts with # symbol
       if (currentTag.charAt(0) !== "#") {
@@ -40,12 +54,12 @@ const CreatePost = props => {
         return format;
       } else {
         // else return the tag as is
-        return currentTag;
+        return format;
       }
     });
 
     // map replacing empty return with an index of undefined;\
-    return formattedTags.filter(t => t !== undefined);
+    return formattedTags.filter(t => t !== undefined || t !== "" || t !== " ");
   };
 
   const defaultVisibility = ProjectVisibility.PUBLIC;
@@ -82,11 +96,7 @@ const CreatePost = props => {
         setFieldValue
         /* and other goodies */
       }) => (
-        <form
-          onSubmit={handleSubmit}
-          className="col-md-12"
-          style={{ margin: "10px", minWidth: "300px", paddingBottom: "40px" }}
-        >
+        <form onSubmit={handleSubmit} className="col-md-12" style={{ margin: "10px", paddingBottom: "40px" }}>
           <div
             className="card mb-3 px-2 pt-3 mx-auto"
             style={{ backgroundColor: "#efefef", maxWidth: "850px", borderTop: "5px solid #ec5f5f" }}
@@ -175,15 +185,17 @@ const CreatePost = props => {
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
-              <textarea
-                className="form-control mt-5"
-                id="exampleFormControlTextarea1"
-                rows={4}
-                name="description"
-                value={values.description}
+              {/* TODO Validate HTML before consuming it make sure its safe */}
+              {/* TODO Preview is broken prob because of display block */}
+
+              <SimpleMDE
+                className="mt-5 markdown-editor"
                 onBlur={handleBlur}
-                onChange={handleChange}
+                onChange={(value: string) => {
+                  setFieldValue("description", value);
+                }}
               />
+              ;
             </div>
             <div className="card-footer">
               <div className="float-end">

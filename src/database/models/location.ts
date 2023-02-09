@@ -19,6 +19,8 @@ export default class Location extends Model<InferAttributes<Location>, InferCrea
   declare city: string;
   declare postcode: string;
   declare country: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

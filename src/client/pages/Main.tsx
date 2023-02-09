@@ -54,7 +54,7 @@ const Main = () => {
             <Route path={RoutesEnum.LOGIN} element={<RequireLogout view={<Login />} />} />
             <Route path="/list-project" element={<RequireLogin view={<CreatePost />} />} />
             <Route path={RoutesEnum.MYPROFILE} element={<RequireLogin view={<MyProfile />} />} />
-            <Route path="/project/:projectId" element={<RequireLogin view={<ViewProject />} />} />
+            <Route path="/view-project/:projectId" element={<RequireLogin view={<ViewProject />} />} />
             <Route path="*" element={<p>Theres nothing here: 404!</p>} />
           </Routes>
         </div>

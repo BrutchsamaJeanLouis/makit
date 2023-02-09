@@ -8,6 +8,8 @@ export default class Comment extends Model<InferAttributes<Comment>, InferCreati
   // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
   declare value: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

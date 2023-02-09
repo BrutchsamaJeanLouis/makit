@@ -10,6 +10,8 @@ export default class Media extends Model<InferAttributes<Media>, InferCreationAt
   declare mediaFormat: string;
   declare s3BucketKey: string;
   declare mediaUrl: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set

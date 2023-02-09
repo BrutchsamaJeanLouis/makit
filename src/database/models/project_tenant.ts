@@ -13,6 +13,8 @@ export default class ProjectTenant extends Model<
   declare id: CreationOptional<number>;
   declare userId: number;
   declare projectId: number;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 // allowNull defaults to true if not set
