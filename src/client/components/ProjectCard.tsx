@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
+import "./ProjectCard.css";
 
 // const optionsPopover = (props) => {
 //   return (
@@ -48,7 +49,7 @@ export default function Projectcard({ project, editable = false }: ProjectCardPr
           style={{ borderTopRightRadius: "50px" }}
           onClick={() => navigateToPage(`/view-project/${project.id}`)}
         >
-          <h5 className="card-title">{project.title}</h5>
+          <h5 className="card-title text-center">{project.title}</h5>
           <p className="card-text">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} className="markdown">
               {project.description}

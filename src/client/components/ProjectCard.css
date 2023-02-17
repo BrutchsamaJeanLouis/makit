@@ -2,10 +2,10 @@
   position: relative;
   background-color: grey;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   display: inline-block;
-  line-height: 350%;
+  line-height: 200%;
   text-align: center;
   margin-right: 10px;
 }

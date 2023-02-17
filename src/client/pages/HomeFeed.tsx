@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Project from "../../database/models/project";
 import { LoadingSpinnerWholePage } from "../components/LoadingSpinners";
-import "./HomeFeed.css";
 
 const HomeFeed = props => {
   const navigateToPage = useNavigate();

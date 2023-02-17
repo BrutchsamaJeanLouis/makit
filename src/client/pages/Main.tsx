@@ -30,7 +30,10 @@ const Main = () => {
       .catch(() => setLoadingCredentials(false));
 
     const interval = setInterval(async () => {
-      await axios.get("/api/auth/refresh-perms").then(() => console.log(`${Date.now} - refresh user permissions`));
+      const now = new Date(Date.now());
+      await axios
+        .get("/api/auth/refresh-perms")
+        .then(() => console.log(`${now.toISOString()} - refresh user permissions`));
     }, threeMinute);
 
     return () => clearInterval(interval);

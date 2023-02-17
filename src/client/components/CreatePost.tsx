@@ -1,35 +1,68 @@
 import axios, { AxiosError } from "axios";
 import { Formik } from "formik";
-import React, { MutableRefObject, useCallback, useRef, useState } from "react";
+import React, { MutableRefObject, useCallback, useMemo, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { ProjectPhase, ProjectVisibility } from "../../utils/enums";
 import Dropdown from "react-bootstrap/Dropdown";
 import { createProjectFormSchema } from "../../utils/validation-schemas/schema-create-post";
 import { useNavigate } from "react-router-dom";
 import SimpleMDE from "react-simplemde-editor";
+import EasyMDE from "easymde/types/easymde";
+import { ToolbarIcon } from "easymde/types/easymde";
+import _ from "lodash";
 import "easymde/dist/easymde.min.css";
-
-import _ from "lodash"
+import "./CreatePost.css";
 
 const CreatePost = props => {
   const navigateToPage = useNavigate();
   const [isAddingHashTag, setIsAddingHashTag] = useState(false);
   const hashtagInputRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [fileBlobRef, setFileBlobRef] = useState<string[]>([]);
 
-  const postProject = async (values: any) => {
-    const response = await axios
-      .post("/api/project/create", values)
-      .then(res => {
-        console.log("success /api/project/create", res.data);
-        navigateToPage(`/view-project/${res.data.newProject.id}`);
-      })
-      .catch((err: AxiosError) => console.log("error /api/project/create", err.response?.data));
+  const postProject = async (formData: any) => {
+    const projectResponse = await axios.post("/api/project/create", formData).catch((err: AxiosError) => {
+      console.log("error /api/project/create", err.response!.data);
+      return;
+    });
+    if (projectResponse!.data.newProject && formData.files.length > 0) {
+      const projectId = projectResponse!.data.newProject.id;
+      // attempting to upload and attach media
+      // then transform preview to real markdown;
+      const reqBody = { projectId: projectId, files: Object.assign({}, formData.files) };
+      const mediaResponse = await axios
+        .post("/api/media/attach", reqBody)
+        .catch((err: AxiosError) => console.log("error /api/media/attach", err.response!.data));
+    }
+
+    console.log("success /api/project/create", projectResponse!.data);
+    navigateToPage(`/view-project/${projectResponse!.data.newProject.id}`);
+  };
+
+  // Video and Image Files
+  // OnSuccess Takes a FileURL as string to ass to the markdown
+  const S3upload = async (file: File, onSuccess: (s: string) => any, onError: (s: string) => any) => {
+    setIsUploadingImage(true);
+    // await axios.post("/api/media/attach", {});
+    onSuccess(URL.createObjectURL(file));
+    // <img src="blob:http://localhost:8080/a02c6732-15ca-4d6c-947c-86a3c2f6a975"><img>
+    // find a way to push this to description file then on post upload it to s3
+    setIsUploadingImage(false);
+  };
+
+  const onchangeDisplayImages = (filesArray: []) => {
+    if (filesArray.length === 0) return;
+    const fileBlobs = filesArray.map(blob => URL.createObjectURL(blob));
+    setFileBlobRef(fileBlobs);
+
+    // ![image](blob:http://localhost:8080/97bf531f-defc-4d65-8bf2-17459be8ed2d)
+    // ![](https://nl-at-media-prod.s3.eu-west-2.amazonaws.com/130/203/925/bunny_1by1.mp4)
   };
 
   const formatMyHashTags = (tags: string[]): string[] => {
     //TODO handle hashtags with spaces currently not working
     const formattedTags = tags.map(currentTag => {
-      let format = currentTag.trim();
+      let format = currentTag?.trim();
 
       // if empty string
       if (!format) {
@@ -59,15 +92,81 @@ const CreatePost = props => {
     });
 
     // map replacing empty return with an index of undefined;\
+    // @ts-ignore
     return formattedTags.filter(t => t !== undefined || t !== "" || t !== " ");
   };
-
+  const markdownEditorOptions = useMemo((): EasyMDE.Options => {
+    return {
+      imageUploadFunction: S3upload,
+      uploadImage: true,
+      status: false,
+      toolbar: [
+        "bold",
+        "italic",
+        "quote",
+        "unordered-list",
+        "ordered-list",
+        "link",
+        "image",
+        {
+          name: "redText",
+          action: editor => {
+            var cm = editor.codemirror;
+            var output = "";
+            var selectedText = cm.getSelection();
+            var text = selectedText || "https://";
+            output = "[![video](/static/video-banner.jpg)](" + text + ")";
+            cm.replaceSelection(output);
+          },
+          className: "bi bi-film",
+          title: "insert Video"
+        },
+        "strikethrough",
+        "code",
+        "table",
+        "heading",
+        "heading-bigger",
+        "heading-smaller",
+        "heading-1",
+        "heading-2",
+        "heading-3",
+        "redo",
+        "undo",
+        "clean-block",
+        "horizontal-rule",
+        "preview",
+        "side-by-side",
+        "fullscreen",
+        "guide"
+      ]
+      // Adjust settings for parsing the Markdown during previewing (not editing).
+      // renderingConfig: {
+      //   markedOptions: {
+      //     renderer: () => {
+      //       return
+      //     }
+      //   },
+      //   // used to validate/sanatize rawHtmL
+      //   sanitizerFunction(html) {
+      //       return ""
+      //   },
+      // },
+      // hideIcons: ["preview", "fullscreen"]
+    };
+  }, []);
   const defaultVisibility = ProjectVisibility.PUBLIC;
   const defaultPhase = ProjectPhase.IDEA;
 
   return (
     <Formik
-      initialValues={{ title: "", description: "", tags: [], visibility: defaultVisibility, phase: defaultPhase }}
+      initialValues={{
+        title: "",
+        description: "",
+        tags: [],
+        visibility: defaultVisibility,
+        phase: defaultPhase,
+        files: [] as File[]
+      }}
       validationSchema={createProjectFormSchema}
       validate={values => {
         // free to directly mutate object here
@@ -96,7 +195,11 @@ const CreatePost = props => {
         setFieldValue
         /* and other goodies */
       }) => (
-        <form onSubmit={handleSubmit} className="col-md-12" style={{ margin: "10px", paddingBottom: "40px" }}>
+        <form
+          onSubmit={handleSubmit}
+          className="col-md-12 create-post"
+          style={{ margin: "10px", paddingBottom: "40px" }}
+        >
           <div
             className="card mb-3 px-2 pt-3 mx-auto"
             style={{ backgroundColor: "#efefef", maxWidth: "850px", borderTop: "5px solid #ec5f5f" }}
@@ -187,22 +290,101 @@ const CreatePost = props => {
               </div>
               {/* TODO Validate HTML before consuming it make sure its safe */}
               {/* TODO Preview is broken prob because of display block */}
-
               <SimpleMDE
-                className="mt-5 markdown-editor"
+                className={`mt-5 markdown-editor ${isUploadingImage && "invisible"}`}
                 onBlur={handleBlur}
-                onChange={(value: string) => {
+                value={values.description}
+                onChange={(value: string, changeObj) => {
+                  const files = changeObj?.text.filter(t => t.includes("blob:"));
+                  if (files?.length && files.length > 0) {
+                    console.log("inserting a file");
+                  }
                   setFieldValue("description", value);
                 }}
+                onDropCapture={e => {
+                  // TODO check for video and check for image
+                  const fileIndex = e.dataTransfer.getData("file-index");
+                  const fileType = e.dataTransfer.getData("file-type");
+                  let markdown;
+                  if (fileType.includes("video")) {
+                    markdown = "[![video](/static/video-banner.jpg)](" + fileBlobRef[fileIndex] + ")";
+                  }
+                  if (fileType.includes("image")) {
+                    markdown = "![image](" + fileBlobRef[fileIndex] + ")";
+                  }
+                  setFieldValue("description", values.description + markdown);
+                  console.log("dropCapture", fileIndex);
+                }}
+                options={markdownEditorOptions}
               />
               ;
             </div>
+            <div>
+              {/* TODO make this a carousel component with props fileBlobRef, onChangeDisplayImages */}
+              {values.files.length > 0 &&
+                fileBlobRef.map((blob, index) => (
+                  <div data-file-index={index} key={index}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const filesLeftAfterRemove = values.files.filter((img, i) => i !== index);
+                        // remove from fromik
+                        setFieldValue("files", filesLeftAfterRemove);
+                        // update image blob render
+                        onchangeDisplayImages(filesLeftAfterRemove);
+                      }}
+                    >
+                      X
+                    </button>
+                    {values.files[index]?.type.includes("image") && (
+                      <img
+                        data-file-index={index}
+                        width={150}
+                        draggable
+                        src={blob}
+                        onDragStart={e => {
+                          e.dataTransfer.setData("file-index", `${index}`);
+                          e.dataTransfer.setData("file-type", values.files[index].type);
+                          console.log(values.files[index].type);
+                        }}
+                      />
+                    )}
+                    {values.files[index]?.type.includes("video") && (
+                      <video
+                        data-file-index={index}
+                        width={150}
+                        controls
+                        draggable
+                        src={blob}
+                        onDragStart={e => {
+                          e.dataTransfer.setData("file-index", `${index}`);
+                          e.dataTransfer.setData("file-type", values.files[index].type);
+                          console.log(values.files[index].type);
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+            </div>
             <div className="card-footer">
-              <div className="float-end">
-                <button type="button" className="btn btn-secondary">
-                  <i className="bi bi-paperclip" />
-                  Add attachments
-                </button>
+              <div className="mb-3 float-end">
+                <input
+                  style={{ width: "7em" }}
+                  className="form-control"
+                  type="file"
+                  id="formFileMultiple"
+                  onChange={event => {
+                    if (!event.target.files) return;
+                    const filesArray = Array.from(event.target.files);
+                    const existingFiles = [...values.files];
+                    const combinedFiles = [...existingFiles, ...filesArray];
+                    values.files = combinedFiles;
+                    onchangeDisplayImages(combinedFiles);
+                    event.target.value = "";
+                    // console.log('formik file value', values.files)
+                  }}
+                  multiple
+                />
               </div>
             </div>
             <div className="card-footer">

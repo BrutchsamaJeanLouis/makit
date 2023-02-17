@@ -8,7 +8,6 @@ import { RootState } from "../redux/store";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
-import "./ViewProject.css";
 import Project from "../../database/models/project";
 import ModelHelper from "../../utils/ModelHelper";
 
@@ -19,6 +18,7 @@ const ViewProject = (props: any) => {
   const [serverError, setServerError] = useState(null);
 
   const user: any = useSelector((reduxState: RootState) => reduxState.auth.user);
+  const isOwnerOfProject: boolean = project?.userId === user.id;
 
   const fetchProject = async () => {
     const response: any = await axios.get(`/api/project/${projectId}`).catch(err => setServerError(err.response.data));
@@ -28,10 +28,8 @@ const ViewProject = (props: any) => {
 
   useEffect(() => {
     fetchProject();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isOwner = project?.userId === user.id;
   if (loading) {
     return <LoadingSpinnerWholePage />;
   }
@@ -63,35 +61,31 @@ const ViewProject = (props: any) => {
             {project.User.username}
             <p style={{ fontSize: "0.7em" }}>{project.createdAt.toString()}</p>
           </div>
-          {isOwner && (
+          {isOwnerOfProject && (
             <div className="float-end" style={{ cursor: "pointer" }}>
               <i className="bi bi-three-dots-vertical" />
             </div>
           )}
         </h5>
         <div className="card-body" style={{ borderTopRightRadius: "50px" }}>
+          <h5 className="card-title text-center pb-3">{project.title}</h5>
           <div className="progresses justify-content-center pb-5">
             <div className="steps" style={styles.phaseProgress.ideaSpan}>
               <span>Idea</span>
             </div>
             <span className="line" style={styles.phaseProgress.planLine}></span>
-
             <div className="steps" style={styles.phaseProgress.planSpan}>
               <span>Planning</span>
             </div>
-
             <span className="line" style={styles.phaseProgress.creationLine}></span>
-
             <div className="steps" style={styles.phaseProgress.creationSpan}>
               <span>Creation</span>
             </div>
             <span className="line" style={styles.phaseProgress.launchLine}></span>
-
             <div className="steps" style={styles.phaseProgress.launchSpan}>
               <span>Launch</span>
             </div>
           </div>
-          <h5 className="card-title">{project.title}</h5>
           <div className="card-text">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} className="markdown">
               {project.description}

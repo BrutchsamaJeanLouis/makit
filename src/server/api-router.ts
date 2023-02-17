@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import authRouter from "./routes/auth";
 import projectRouter from "./routes/project";
+import mediaRouter from "./routes/media";
 const router = express.Router();
 
 // Logger to console log all api routes called;
@@ -13,5 +14,6 @@ router.use("*", (req: Request, res: Response, next: NextFunction) => {
 });
 router.use("/auth", authRouter);
 router.use("/project", projectRouter);
+router.use("/media", mediaRouter);
 
 export default router;

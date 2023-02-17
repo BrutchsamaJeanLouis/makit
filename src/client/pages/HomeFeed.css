@@ -1,8 +1,0 @@
-.home-feed .markdown *{
-  max-width: 100%;
-}
-
-.home-feed .markdown {
-  max-height: 300px;
-  overflow: hidden;
-}

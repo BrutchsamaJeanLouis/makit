@@ -6,7 +6,6 @@ import { connect } from "react-redux";
 import { Formik, withFormik } from "formik";
 import { registerBodySchema } from "../../utils/validation-schemas/schema-register";
 import { ValidationError } from "yup";
-import "./Register.css";
 
 const Register = () => {
   const { name, setName } = useAppContext();
