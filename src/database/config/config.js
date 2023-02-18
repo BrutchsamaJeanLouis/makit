@@ -1,8 +1,14 @@
 const path = require("path");
 if (process.env.NODE_ENV) {
-  require("dotenv").config({
-    path: path.join(__dirname, `../../../.env.${process.env.NODE_ENV}`)
-  });
+  if (process.env.GENERATE_MIG) {
+    require("dotenv").config({
+      path: path.join(__dirname, `../../../../.env.${process.env.NODE_ENV}`)
+    });
+  } else {
+    require("dotenv").config({
+      path: path.join(__dirname, `../../../.env.${process.env.NODE_ENV}`)
+    });
+  }
   console.log(`connecting database for environment >> ${process.env.NODE_ENV}`);
 } else {
   console.error("No NODE_ENV provided");

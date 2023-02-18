@@ -50,7 +50,7 @@ const CreatePost = props => {
     setIsUploadingImage(false);
   };
 
-  const onchangeDisplayImages = (filesArray: []) => {
+  const onchangeDisplayImages = (filesArray: any[]) => {
     if (filesArray.length === 0) return;
     const fileBlobs = filesArray.map(blob => URL.createObjectURL(blob));
     setFileBlobRef(fileBlobs);

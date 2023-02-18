@@ -1,4 +1,4 @@
-import { Sequelize, Dialect } from "sequelize";
+import { Sequelize } from "sequelize";
 // @ts-ignore
 // path from seqalize root to db path
 const sequelize = new Sequelize({
