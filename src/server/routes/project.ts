@@ -101,7 +101,7 @@ router.get("/:projectId", ensureAuthentication, async (req: Request, res: Respon
         // { model: ProjectTenant, include: [{ model: User }] }
       ]
     });
-    console.log(typeof project!.createdAt)
+    console.log(typeof project!.createdAt);
     if (!project) return res.status(404).json({ message: "Project Not Found" });
 
     const allowedToView = canUserViewProject(project, req.session);
