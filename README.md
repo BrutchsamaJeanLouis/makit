@@ -1,23 +1,17 @@
-# Milestones
+# Development Setup
+==================================================
+* run yarn to install all dependencies
 
-focus on functionality to give project posters most value of the product
-* MarkDown to let people add they donation buttons etc
-* Link Hashtags
-* Upload Media
-* Pools (votes)
-* Commenting
-* Invites (Disclaimer Modal)
-* Messaging
-* Search & Filter
-* Example: https://colorlib.com/wp/bootstrap-social-network-templates/
+* .env.development variables are stored on git so postgres user details must match
 
-# Developer Convenience
-* seed sample data into database
-* finish data types for typescript db Models
+* run yarn createDB to create the database
 
-# Production ready
-* Enable migrations
-* SEO (Helmet tags)
-* Rate Limiter
-* React Strict Mode
-* Validate all server Routes
+* run yarn build to create server static files(picture-logos etc) this is needed since server and client run on  the same port
+
+* run yarn start  to the run application
+
+NOTE
+aws s3 bucket files are uploaded to aws-s3-media folder located on the root of the project
+aws ses email are sent to aws-ses folder located on the root of the project
+
+the dist folder is the production build of the application

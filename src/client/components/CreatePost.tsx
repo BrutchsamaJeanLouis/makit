@@ -12,6 +12,7 @@ import { ToolbarIcon } from "easymde/types/easymde";
 import _ from "lodash";
 import "easymde/dist/easymde.min.css";
 import "./CreatePost.css";
+import DOMPurify from "dompurify";
 
 const CreatePost = props => {
   const navigateToPage = useNavigate();
@@ -138,19 +139,20 @@ const CreatePost = props => {
         "side-by-side",
         "fullscreen",
         "guide"
-      ]
+      ],
       // Adjust settings for parsing the Markdown during previewing (not editing).
-      // renderingConfig: {
-      //   markedOptions: {
-      //     renderer: () => {
-      //       return
-      //     }
-      //   },
-      //   // used to validate/sanatize rawHtmL
-      //   sanitizerFunction(html) {
-      //       return ""
-      //   },
-      // },
+      renderingConfig: {
+        // markedOptions: {
+        //   renderer: () => {
+        //     return
+        //   }
+        // },
+        // used to validate/sanatize rawHtmL
+        sanitizerFunction(html) {
+          const safeHTML = DOMPurify.sanitize(html);
+          return safeHTML;
+        }
+      }
       // hideIcons: ["preview", "fullscreen"]
     };
   }, []);
@@ -169,8 +171,9 @@ const CreatePost = props => {
       }}
       validationSchema={createProjectFormSchema}
       validate={values => {
-        // free to directly mutate object here
         const errors: any = {};
+        // purify html for every validation
+        if (values.description) values.description = DOMPurify.sanitize(values.description);
         // eslint-disable-next-line no-constant-condition
         if (!"a value errors") {
           errors.myValue = "Required";

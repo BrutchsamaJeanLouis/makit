@@ -12,11 +12,18 @@ import Fund from "../../database/models/fund";
 import ProjectTenant from "../../database/models/project_tenant";
 import { ProjectVisibility } from "../../utils/enums";
 import canUserViewProject from "../../utils/validation-schemas/canUserViewProject";
-import { Op, where } from "sequelize";
+import { Op } from "sequelize";
+import { JSDOM } from "jsdom";
+import DOMPurify from "dompurify";
 const router = express.Router();
 
 router.post("/create", ensureAuthentication, validate(createPostRequestSchema), async (req: Request, res: Response) => {
-  const { title, description, visibility, phase, tags } = req.body;
+  const { title, visibility, phase, tags } = req.body;
+  const dangerousDescription = req.body.description;
+
+  const purifyer = DOMPurify(new JSDOM("").window);
+  const description = purifyer.sanitize(dangerousDescription);
+
   // TODO link hashTags
   try {
     const newProject = await Project.create({
