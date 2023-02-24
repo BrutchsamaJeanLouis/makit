@@ -15,6 +15,7 @@ import canUserViewProject from "../../utils/validation-schemas/canUserViewProjec
 import { Op } from "sequelize";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
+import htmlSanitizeConfig from "../../utils/htmlSanitizeConfig";
 const router = express.Router();
 
 router.post("/create", ensureAuthentication, validate(createPostRequestSchema), async (req: Request, res: Response) => {
@@ -22,7 +23,7 @@ router.post("/create", ensureAuthentication, validate(createPostRequestSchema), 
   const dangerousDescription = req.body.description;
 
   const purifyer = DOMPurify(new JSDOM("").window);
-  const description = purifyer.sanitize(dangerousDescription);
+  const description = purifyer.sanitize(dangerousDescription, htmlSanitizeConfig);
 
   // TODO link hashTags
   try {

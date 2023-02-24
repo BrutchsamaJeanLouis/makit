@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { Formik } from "formik";
-import React, { MutableRefObject, useCallback, useMemo, useRef, useState } from "react";
+import React, { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { ProjectPhase, ProjectVisibility } from "../../utils/enums";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -13,6 +13,7 @@ import _ from "lodash";
 import "easymde/dist/easymde.min.css";
 import "./CreatePost.css";
 import DOMPurify from "dompurify";
+import htmlSanitizeConfig from "../../utils/htmlSanitizeConfig";
 
 const CreatePost = props => {
   const navigateToPage = useNavigate();
@@ -20,8 +21,13 @@ const CreatePost = props => {
   const hashtagInputRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [fileBlobRef, setFileBlobRef] = useState<string[]>([]);
+  const [clickedSubmit, setClickedSubmit] = useState(false);
 
   const postProject = async (formData: any) => {
+    if (!clickedSubmit) {
+      console.log("trying to submit from a non valid source > exiting");
+      return;
+    }
     const projectResponse = await axios.post("/api/project/create", formData).catch((err: AxiosError) => {
       console.log("error /api/project/create", err.response!.data);
       return;
@@ -98,6 +104,17 @@ const CreatePost = props => {
   };
   const markdownEditorOptions = useMemo((): EasyMDE.Options => {
     return {
+      // previewRender(markdownPlaintext, previewElement) {
+      //   previewElement.onclick = null;
+      //   previewElement.onsubmit = null;
+      //   const div = document.createElement("div");
+      //   div.innerHTML = markdownPlaintext;
+      //   previewElement.appendChild(div);
+      //   return previewElement;
+      // },
+      // imagesPreviewHandler: (src) => {
+
+      // }
       imageUploadFunction: S3upload,
       uploadImage: true,
       status: false,
@@ -149,7 +166,7 @@ const CreatePost = props => {
         // },
         // used to validate/sanatize rawHtmL
         sanitizerFunction(html) {
-          const safeHTML = DOMPurify.sanitize(html);
+          const safeHTML = DOMPurify.sanitize(html, htmlSanitizeConfig);
           return safeHTML;
         }
       }
@@ -173,7 +190,7 @@ const CreatePost = props => {
       validate={values => {
         const errors: any = {};
         // purify html for every validation
-        if (values.description) values.description = DOMPurify.sanitize(values.description);
+        if (values.description) values.description = DOMPurify.sanitize(values.description, htmlSanitizeConfig);
         // eslint-disable-next-line no-constant-condition
         if (!"a value errors") {
           errors.myValue = "Required";
@@ -199,7 +216,16 @@ const CreatePost = props => {
         /* and other goodies */
       }) => (
         <form
-          onSubmit={handleSubmit}
+          onSubmit={e => {
+            const submitButton = document.getElementById("create-post-submit-button");
+            if (document.activeElement === submitButton) {
+              handleSubmit(e);
+            } else {
+              e.preventDefault();
+              console.log("trying to submit from an unknown source >> ignoring...");
+              return false;
+            }
+          }}
           className="col-md-12 create-post"
           style={{ margin: "10px", paddingBottom: "40px" }}
         >
@@ -297,6 +323,8 @@ const CreatePost = props => {
                 className={`mt-5 markdown-editor ${isUploadingImage && "invisible"}`}
                 onBlur={handleBlur}
                 value={values.description}
+                onSubmit={() => null}
+                onSubmitCapture={() => null}
                 onChange={(value: string, changeObj) => {
                   const files = changeObj?.text.filter(t => t.includes("blob:"));
                   if (files?.length && files.length > 0) {
@@ -310,10 +338,12 @@ const CreatePost = props => {
                   const fileType = e.dataTransfer.getData("file-type");
                   let markdown;
                   if (fileType.includes("video")) {
-                    markdown = "[![video](/static/video-banner.jpg)](" + fileBlobRef[fileIndex] + ")";
+                    // markdown = "[![video](/static/video-banner.jpg)](" + fileBlobRef[fileIndex] + ")";
+                    markdown = `<video height="250" width="auto" src="${fileBlobRef[fileIndex]}" controls></video>`;
                   }
                   if (fileType.includes("image")) {
-                    markdown = "![image](" + fileBlobRef[fileIndex] + ")";
+                    // markdown = "![image](" + fileBlobRef[fileIndex] + ")";
+                    markdown = `<img height="250" width="auto" src="${fileBlobRef[fileIndex]}"></img>`;
                   }
                   setFieldValue("description", values.description + markdown);
                   console.log("dropCapture", fileIndex);
@@ -391,14 +421,14 @@ const CreatePost = props => {
               </div>
             </div>
             <div className="card-footer">
-              {/* <span style={{whiteSpace: 'nowrap'}}>
-              <input className='form-control form-control-lg' placeholder='comment' style={{ display: 'inline' }}/>
-              <button className='btn btn-primary' style={{display: 'inline' }}>Post</button>
-            </span> */}
-
               <div className="input-group mb-3">
                 <div className="input-group-prepend" style={{ alignItems: "center", display: "flex" }}>
-                  <button className="btn btn-primary" type="submit" style={{ marginLeft: "10px" }}>
+                  <button
+                    id="create-post-submit-button"
+                    className="btn btn-primary"
+                    type="submit"
+                    style={{ marginLeft: "10px" }}
+                  >
                     Publish
                   </button>
                 </div>
