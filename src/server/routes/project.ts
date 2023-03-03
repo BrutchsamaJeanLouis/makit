@@ -18,8 +18,14 @@ import DOMPurify from "dompurify";
 import htmlSanitizeConfig from "../../utils/htmlSanitizeConfig";
 const router = express.Router();
 
+/*==================================================================**
+ |
+ |              POST          /project/create
+ |
+ *===================================================================*/
 router.post("/create", ensureAuthentication, validate(createPostRequestSchema), async (req: Request, res: Response) => {
-  const { title, visibility, phase, tags } = req.body;
+  const { title, visibility, phase } = req.body;
+  const tags: string[] = req.body.tags;
   const dangerousDescription = req.body.description;
 
   const purifyer = DOMPurify(new JSDOM("").window);
@@ -41,6 +47,11 @@ router.post("/create", ensureAuthentication, validate(createPostRequestSchema), 
   }
 });
 
+/*==================================================================**
+ |
+ |              POST          /project/projects
+ |
+ *===================================================================*/
 router.get("/projects", async (req: Request, res: Response) => {
   const user = req.session.user;
   // TODO: validation page grater than 0 (no negative numbers)
@@ -93,6 +104,11 @@ router.get("/projects", async (req: Request, res: Response) => {
   }
 });
 
+/*==================================================================**
+ |
+ |              POST          /project/:projectid
+ |
+ *===================================================================*/
 // TODO Validate
 router.get("/:projectId", ensureAuthentication, async (req: Request, res: Response) => {
   const projectId = parseInt(req.params.projectId);

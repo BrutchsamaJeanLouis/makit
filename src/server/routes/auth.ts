@@ -16,6 +16,7 @@ import { Op } from "sequelize";
 import { ensureAuthentication, ensureLogout } from "../middlewareFunctions/auth-middleware";
 import { registerRequestValidation } from "../../utils/validation-schemas/schema-register";
 import { loginRequestValidation } from "../../utils/validation-schemas/schema-login";
+import dayjs from "dayjs";
 const router = express.Router();
 
 router.get("/credentials", async (req: Request, res: Response, next: NextFunction) => {
@@ -49,7 +50,7 @@ router.get("/refresh-perms", async (req: Request, res: Response) => {
 
 /*==================================================================**
  |
- |              POST          /register
+ |              POST          /auth/register
  |
  *===================================================================*/
 router.post("/register", ensureLogout, async (req: Request, res: Response) => {
@@ -126,7 +127,7 @@ router.post("/register", ensureLogout, async (req: Request, res: Response) => {
 
 /*==================================================================**
  |
- |              GET          /register-confirm /:token
+ |              GET          /auth/register-confirm /:token
  |
  *===================================================================*/
 router.get("/register-confirm/:token", async (req, res) => {
@@ -163,7 +164,7 @@ router.get("/register-confirm/:token", async (req, res) => {
 
 /*==================================================================**
  |
- |           POST       /resend-verification
+ |           POST       /auth/resend-verification
  |
  *===================================================================*/
 // TODO Rate Limiter To prevent Spam
@@ -213,7 +214,7 @@ router.post("/resend-verification", async (req, res) => {
 
 /*==================================================================**
  |
- |               POST         /Login
+ |               POST         /auth/Login
  |
  *===================================================================*/
 router.post("/login", async (req: Request, res: Response) => {
@@ -252,13 +253,16 @@ router.post("/login", async (req: Request, res: Response) => {
     if (foundUser.verified === false) {
       return res.redirect(`/register-confirm?email=${foundUser.email}`);
     }
-
+    const thirtyDays = 2592000000;
+    const now = dayjs();
     const dBHashedPassword = foundUser.password;
     bcrypt.compare(password, dBHashedPassword, (err, result) => {
       if (result === true) {
         // create a session for user
         const projectsAllowed = foundUser.ProjectTenants.map((p: ProjectTenant) => p.projectId);
         req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username, projectsAllowed };
+        // req.session.cookie.expires = dayjs();
+        // req.session.cookie.maxAge = thirtyDays;
         console.log(`${foundUser.username} has signed in`);
         // Success redirect
         res.redirect(`${req.session.returnTo || "/"}`);
@@ -276,7 +280,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
 /*==================================================================**
  |
- |              GET          /Logout
+ |              GET          /auth/Logout
  |
  *===================================================================*/
 router.get("/logout", (req: Request, res: Response) => {

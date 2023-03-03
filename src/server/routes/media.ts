@@ -14,6 +14,11 @@ const s3Bucket = new S3({
   endpoint: new AWS.Endpoint(process.env.AWS_S3_ENDPOINT ?? "")
 });
 
+/*==================================================================**
+ |
+ |              POST          /media/attach
+ |
+ *===================================================================*/
 router.post("/attach", async (req: Request, res: Response) => {
   const { projectId = 1, files } = req.body;
   const successUploadResult = [];
@@ -23,14 +28,14 @@ router.post("/attach", async (req: Request, res: Response) => {
   await s3Bucket.putObject(
     {
       Bucket: String(process.env.AWS_S3_BUCKET_NAME),
-      Key: `1/pic.png`,
+      Key: `1/private.png`,
       Body: fileBuffer,
-      ACL: "private"
+      ACL: "bucket-owner-full-control"
     },
     (err, data) => {
       console.log("s3Upload from Node", data, err);
     }
-  ).promise();
+  );
 
   if (files) {
     files.forEach(f => {
@@ -43,6 +48,31 @@ router.post("/attach", async (req: Request, res: Response) => {
   }
   return res.status(200).json({
     successUploadResult
+  });
+});
+
+/*==================================================================**
+ |
+ |              POST          /media/get
+ |
+ *===================================================================*/
+router.post("/get", async (req: Request, res: Response) => {
+  const { s3Key } = req.body;
+  router.get("/:userId/:itemId/:imageFileName", async (req, res) => {
+    // todo change to srurl(Localhost:498) and key
+    const img = path.resolve(`./local-uploads/${req.params.userId}/${req.params.itemId}/${req.params.imageFileName}`);
+    try {
+      if (fs.existsSync(img)) {
+        console.log("requested local file exists");
+        fs.createReadStream(img).pipe(res);
+      } else {
+        return res.status(404).send();
+      }
+    } catch (err) {
+      return res.status(500).send();
+    }
+
+    return res.type("image").send();
   });
 });
 
