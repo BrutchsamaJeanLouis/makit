@@ -20,6 +20,10 @@ body {
   background-color: #ec5f5f;
 }
 
+.palette-pink-text {
+  color: #ec5f5f;
+}
+
 .palette-pink.btn:hover {
   background-color: #c74f4f;
 }
@@ -98,7 +102,7 @@ body {
 }
 
 .view-project .steps span {
-  margin-bottom: 2.7em;
+  margin-bottom: 1.7em;
   font-weight: bold;
   font-size: 12px;
   z-index: +1;

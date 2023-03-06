@@ -71,25 +71,45 @@ const ViewProject = (props: any) => {
           <h5 className="card-title text-center pb-3">{project.title}</h5>
           <div className="progresses justify-content-center pb-5">
             <div className="steps" style={styles.phaseProgress.ideaSpan}>
-              <span>Idea</span>
+              <span className="text-center">
+                Idea
+                <i className="bi bi-lightbulb text-white" />
+              </span>
             </div>
             <span className="line" style={styles.phaseProgress.planLine}></span>
             <div className="steps" style={styles.phaseProgress.planSpan}>
-              <span>Planning</span>
+              <span className="text-center">
+                Planning
+                <i className="bi bi-book text-white" />
+              </span>
             </div>
             <span className="line" style={styles.phaseProgress.creationLine}></span>
             <div className="steps" style={styles.phaseProgress.creationSpan}>
-              <span>Creation</span>
+              <span className="text-center">
+                Creation
+                <i className="bi bi-wrench-adjustable text-white" />
+              </span>
             </div>
             <span className="line" style={styles.phaseProgress.launchLine}></span>
             <div className="steps" style={styles.phaseProgress.launchSpan}>
-              <span>Launch</span>
+              <span className="text-center">
+                Launch
+                <i className="bi bi-rocket-takeoff text-white" />
+              </span>
             </div>
           </div>
           <div className="card-text">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} className="markdown">
               {project.description}
             </ReactMarkdown>
+          </div>
+          <div className="hashtags">
+            {project.ProjectHashTags.length > 0 &&
+              project.ProjectHashTags.map((projectHashTag, i) => (
+                <span key={i} className="palette-pink-text pe-2">
+                  {projectHashTag.HashTag.name}
+                </span>
+              ))}
           </div>
         </div>
         <div className="card-footer">
@@ -103,11 +123,6 @@ const ViewProject = (props: any) => {
           </div>
         </div>
         <div className="card-footer">
-          {/* <span style={{whiteSpace: 'nowrap'}}>
-              <input className='form-control form-control-lg' placeholder='comment' style={{ display: 'inline' }}/>
-              <button className='btn btn-primary' style={{display: 'inline' }}>Post</button>
-            </span> */}
-
           <div className="input-group mb-3">
             <input type="text" placeholder="comment" className="form-control form-control-lg" />
             <div className="input-group-prepend" style={{ alignItems: "center", display: "flex" }}>

@@ -31,7 +31,8 @@ async function initialiseModels() {
       "media.ts",
       "fund.ts",
       "rating.ts",
-      "hashtag.ts"
+      "hashtag.ts",
+      "project_hashtag.ts"
     ];
     const files = await fs.readdir("./src/database/models");
     files.sort(function (a, b) {

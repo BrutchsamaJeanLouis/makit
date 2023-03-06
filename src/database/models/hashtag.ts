@@ -1,5 +1,6 @@
 import { DataTypes, Model, CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
 import sequelize from "../sequelize-connection";
+import Project from "./project";
 
 export default class HashTag extends Model<InferAttributes<HashTag>, InferCreationAttributes<HashTag>> {
   // Only Used for typescript to pick up intellisense and types
@@ -33,3 +34,4 @@ HashTag.init(
   }
 );
 // project has many hashTags
+Project.hasMany(HashTag, { foreignKey: "projectId" });

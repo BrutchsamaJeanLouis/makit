@@ -16,6 +16,8 @@ import { Op } from "sequelize";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import htmlSanitizeConfig from "../../utils/htmlSanitizeConfig";
+import HashTag from "../../database/models/hashtag";
+import ProjectHashTag from "../../database/models/project_hashtag";
 const router = express.Router();
 
 /*==================================================================**
@@ -40,6 +42,27 @@ router.post("/create", ensureAuthentication, validate(createPostRequestSchema), 
       visibility: visibility,
       phase: phase
     });
+
+    for (let i = 0; i < tags.length; i++) {
+      const currentTag = tags[i];
+
+      // create or find hashtag
+      const databaseHashTag = await HashTag.findOrCreate({
+        where: { name: currentTag },
+        defaults: { name: currentTag } // create value if no record was found
+      });
+      // Link hashTag to project
+      await ProjectHashTag.create({
+        hashtagId: databaseHashTag[0].id,
+        projectId: newProject.id
+      });
+    }
+
+    // Update variable with changes to the db (hashtag creation an linking)
+    await newProject.reload({
+      include: [{ model: ProjectHashTag, include: [HashTag] }]
+    });
+
     return res.json({ newProject: newProject, result: "Success" });
   } catch (err: any) {
     const message = err?.message || err?.name || "Internal server error";
@@ -79,7 +102,8 @@ router.get("/projects", async (req: Request, res: Response) => {
           { model: Comment },
           { model: Location },
           { model: Media },
-          { model: ProjectTenant }
+          { model: ProjectTenant },
+          { model: HashTag }
         ],
         order: [["createdAt", "DESC"]]
       });
@@ -106,7 +130,7 @@ router.get("/projects", async (req: Request, res: Response) => {
 
 /*==================================================================**
  |
- |              POST          /project/:projectid
+ |              GET          /project/:projectid
  |
  *===================================================================*/
 // TODO Validate
@@ -120,12 +144,12 @@ router.get("/:projectId", ensureAuthentication, async (req: Request, res: Respon
         { model: Rating },
         { model: Comment },
         { model: Location },
-        { model: Media }
+        { model: Media },
+        { model: ProjectHashTag, include: [HashTag] }
         // { model: Fund },
         // { model: ProjectTenant, include: [{ model: User }] }
       ]
     });
-    console.log(typeof project!.createdAt);
     if (!project) return res.status(404).json({ message: "Project Not Found" });
 
     const allowedToView = canUserViewProject(project, req.session);

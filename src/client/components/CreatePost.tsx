@@ -24,10 +24,6 @@ const CreatePost = props => {
   const [clickedSubmit, setClickedSubmit] = useState(false);
 
   const postProject = async (formData: any) => {
-    if (!clickedSubmit) {
-      console.log("trying to submit from a non valid source > exiting");
-      return;
-    }
     const projectResponse = await axios.post("/api/project/create", formData).catch((err: AxiosError) => {
       console.log("error /api/project/create", err.response!.data);
       return;
