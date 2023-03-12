@@ -9,7 +9,7 @@ import RegisterConfirm from "./RegisterConfirm";
 import Navbar from "../components/Navbar";
 import { connect } from "react-redux";
 import RequireLogin from "../components/RequireLogin";
-import CreatePost from "../components/CreatePost";
+import CreatePost from "./CreatePost";
 import RequireLogout from "../components/RequireLogout";
 import MyProfile from "./MyProfile";
 import verifyAuthState from "../../utils/verifyAuthState";

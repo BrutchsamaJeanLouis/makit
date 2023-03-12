@@ -32,7 +32,10 @@ async function initialiseModels() {
       "fund.ts",
       "rating.ts",
       "hashtag.ts",
-      "project_hashtag.ts"
+      "project_hashtag.ts",
+      "poll.ts",
+      "poll_choice.ts",
+      "poll_vote.ts"
     ];
     const files = await fs.readdir("./src/database/models");
     files.sort(function (a, b) {

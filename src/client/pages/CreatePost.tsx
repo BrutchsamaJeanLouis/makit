@@ -9,11 +9,18 @@ import { useNavigate } from "react-router-dom";
 import SimpleMDE from "react-simplemde-editor";
 import EasyMDE from "easymde/types/easymde";
 import { ToolbarIcon } from "easymde/types/easymde";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import "easymde/dist/easymde.min.css";
-import "./CreatePost.css";
 import DOMPurify from "dompurify";
 import htmlSanitizeConfig from "../../utils/htmlSanitizeConfig";
+import { PollType } from "../../../types/data-types";
+
+const POLLDEFAULTS = {
+  question: "Enter your poll question",
+  choices: ["yes", "no"]
+};
+
+type FormikSetter = (fieldName: string, data: any) => void;
 
 const CreatePost = props => {
   const navigateToPage = useNavigate();
@@ -21,7 +28,6 @@ const CreatePost = props => {
   const hashtagInputRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [fileBlobRef, setFileBlobRef] = useState<string[]>([]);
-  const [clickedSubmit, setClickedSubmit] = useState(false);
 
   const postProject = async (formData: any) => {
     const projectResponse = await axios.post("/api/project/create", formData).catch((err: AxiosError) => {
@@ -59,7 +65,7 @@ const CreatePost = props => {
     setFileBlobRef(fileBlobs);
 
     // ![image](blob:http://localhost:8080/97bf531f-defc-4d65-8bf2-17459be8ed2d)
-    // ![](https://nl-at-media-prod.s3.eu-west-2.amazonaws.com/130/203/925/bunny_1by1.mp4)
+    // ![image](https://nl-at-media-prod.s3.eu-west-2.amazonaws.com/130/203/925/bunny_1by1.mp4)
   };
 
   const formatMyHashTags = (tags: string[]): string[] => {
@@ -95,8 +101,9 @@ const CreatePost = props => {
     });
 
     // map replacing empty return with an index of undefined;\
+    const result = formattedTags.filter(t => t != undefined && t != "" && t != " ");
     // @ts-ignore
-    return formattedTags.filter(t => t !== undefined || t !== "" || t !== " ");
+    return result;
   };
   const markdownEditorOptions = useMemo((): EasyMDE.Options => {
     return {
@@ -172,6 +179,35 @@ const CreatePost = props => {
   const defaultVisibility = ProjectVisibility.PUBLIC;
   const defaultPhase = ProjectPhase.IDEA;
 
+  function addPool(polls: PollType[], setterFunc: FormikSetter) {
+    //
+    const newPoll = cloneDeep(POLLDEFAULTS);
+    const combinePolls = [...polls, newPoll];
+    setterFunc("polls", combinePolls);
+  }
+
+  function addPollChoice(polls: PollType[], changeIndex: number, setterFunc: FormikSetter) {
+    // Adding new pool option
+    const newPollState = cloneDeep(polls);
+    newPollState[changeIndex].choices.push("new choice");
+    setterFunc("polls", newPollState);
+  }
+
+  const styles = {
+    polls: {
+      optionsInput: {
+        outline: 0,
+        borderWidth: "0 0 2px",
+        borderColor: "#dfb9b9",
+        backgroundColor: "#f000",
+        ":focus": {
+          borderColor: "#dfb9b9",
+          outline: "1px dotted #000"
+        }
+      }
+    }
+  };
+
   return (
     <Formik
       initialValues={{
@@ -180,7 +216,8 @@ const CreatePost = props => {
         tags: [],
         visibility: defaultVisibility,
         phase: defaultPhase,
-        files: [] as File[]
+        files: [] as File[],
+        polls: [] as PollType[]
       }}
       validationSchema={createProjectFormSchema}
       validate={values => {
@@ -274,6 +311,7 @@ const CreatePost = props => {
                       onKeyDown={e => {
                         if (e.key === "Enter") {
                           const formattedHashtags = formatMyHashTags([...values.tags, e.currentTarget.value]);
+                          console.log("formatTAGS from enter key", formattedHashtags);
                           setFieldValue("tags", formattedHashtags);
                           hashtagInputRef.current!.value = "";
                         }
@@ -283,6 +321,7 @@ const CreatePost = props => {
                       onBlur={e => {
                         setIsAddingHashTag(false);
                         const formattedHashtags = formatMyHashTags([...values.tags, e.target.value]);
+                        console.log("formatTAGS from blur", formattedHashtags);
                         setFieldValue("tags", formattedHashtags);
                       }}
                       className="palette-pink text-white p-0 no-input-border"
@@ -347,6 +386,33 @@ const CreatePost = props => {
                 options={markdownEditorOptions}
               />
               ;
+            </div>
+            <div className="card-footer polls">
+              {/* TODO remove polls */}
+              <button
+                className="btn btn-secondary float-end mb-3"
+                // onClick={() => setFieldValue("polls", [...values.polls, cloneDeep(POLLDEFAULTS)])}
+                onClick={() => addPool(values.polls, setFieldValue)}
+              >
+                + Voting Polls <i className="bi bi-bar-chart-steps" />
+              </button>
+              {values.polls.map((p: PollType, i) => (
+                <div key={i}>
+                  <input type="text" value={p.question} className="form-control" />
+                  {p.choices.map((ch, i) => (
+                    <div key={i}>
+                      {/* TODO: remove choice */}
+                      <input type="radio" disabled /> <input style={styles.polls.optionsInput} type="text" value={ch} />
+                    </div>
+                  ))}
+                  <button
+                    className="btn-sm btn-secondary px-1 py-0 mt-2"
+                    onClick={() => addPollChoice(values.polls, i, setFieldValue)}
+                  >
+                    <i className="bi bi-plus" />
+                  </button>
+                </div>
+              ))}
             </div>
             <div>
               {/* TODO make this a carousel component with props fileBlobRef, onChangeDisplayImages */}

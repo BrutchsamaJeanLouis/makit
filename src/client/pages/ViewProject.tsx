@@ -103,13 +103,32 @@ const ViewProject = (props: any) => {
               {project.description}
             </ReactMarkdown>
           </div>
-          <div className="hashtags">
+          <div className="hashtags mb-3">
             {project.ProjectHashTags.length > 0 &&
               project.ProjectHashTags.map((projectHashTag, i) => (
                 <span key={i} className="palette-pink-text pe-2">
                   {projectHashTag.HashTag.name}
                 </span>
               ))}
+          </div>
+          <div className="polls">
+            {project.Polls?.map((poll, i) => (
+              <div key={i} className="card" style={{ width: "18rem;" }}>
+                <div className="card-header">{poll.question}</div>
+                <div className="card-body">
+                  {poll?.PollChoices?.map((choice, i) => (
+                    <div key={i}>
+                      {choice.option}
+                      <div key={i} className="progress mb-2" style={{ backgroundColor: "#ccc" }}>
+                        <div className="progress-bar" role="progressbar" style={{ width: "25%" }}>
+                          {choice.PollVotes.length} %
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
         <div className="card-footer">

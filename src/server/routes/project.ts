@@ -18,6 +18,10 @@ import DOMPurify from "dompurify";
 import htmlSanitizeConfig from "../../utils/htmlSanitizeConfig";
 import HashTag from "../../database/models/hashtag";
 import ProjectHashTag from "../../database/models/project_hashtag";
+import Poll from "../../database/models/poll";
+import PollChoice from "../../database/models/poll_choice";
+import PollVote from "../../database/models/poll_vote";
+import { PollType } from "../../../types/data-types";
 const router = express.Router();
 
 /*==================================================================**
@@ -28,6 +32,7 @@ const router = express.Router();
 router.post("/create", ensureAuthentication, validate(createPostRequestSchema), async (req: Request, res: Response) => {
   const { title, visibility, phase } = req.body;
   const tags: string[] = req.body.tags;
+  const polls: PollType[] = req.body.polls;
   const dangerousDescription = req.body.description;
 
   const purifyer = DOMPurify(new JSDOM("").window);
@@ -43,6 +48,27 @@ router.post("/create", ensureAuthentication, validate(createPostRequestSchema), 
       phase: phase
     });
 
+    // loop though polls array and add them to polls table
+    for (let i = 0; i < polls.length; i++) {
+      const currentPoll = polls[i];
+
+      const poll = await Poll.create({
+        question: currentPoll.question,
+        projectId: newProject.id
+      });
+
+      // loop through choices and create choice record for each
+      for (let i = 0; i < currentPoll.choices.length; i++) {
+        const currentChoice = currentPoll.choices[i];
+
+        await PollChoice.create({
+          option: currentChoice,
+          pollId: poll.id
+        });
+      }
+    }
+
+    // Loop through tags array and add them to tags table
     for (let i = 0; i < tags.length; i++) {
       const currentTag = tags[i];
 
@@ -145,7 +171,8 @@ router.get("/:projectId", ensureAuthentication, async (req: Request, res: Respon
         { model: Comment },
         { model: Location },
         { model: Media },
-        { model: ProjectHashTag, include: [HashTag] }
+        { model: ProjectHashTag, include: [HashTag] },
+        { model: Poll, include: [{ model: PollChoice, include: [PollVote] }] }
         // { model: Fund },
         // { model: ProjectTenant, include: [{ model: User }] }
       ]
