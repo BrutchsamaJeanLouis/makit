@@ -29,7 +29,7 @@ const router = express.Router();
  |              POST          /project/create
  |
  *===================================================================*/
-router.post("/create", ensureAuthentication, validate(createPostRequestSchema), async (req: Request, res: Response) => {
+export const createNewProject = async (req: Request, res: Response) => {
   const { title, visibility, phase } = req.body;
   const tags: string[] = req.body.tags;
   const polls: PollType[] = req.body.polls;
@@ -94,14 +94,14 @@ router.post("/create", ensureAuthentication, validate(createPostRequestSchema), 
     const message = err?.message || err?.name || "Internal server error";
     return res.status(500).json({ message: message, error: err });
   }
-});
+};
 
 /*==================================================================**
  |
- |              POST          /project/projects
+ |              GET          /project/projects
  |
  *===================================================================*/
-router.get("/projects", async (req: Request, res: Response) => {
+export const getRecentProjects = async (req: Request, res: Response) => {
   const user = req.session.user;
   // TODO: validation page grater than 0 (no negative numbers)
   const page = Number(req.query.page || "0");
@@ -152,7 +152,7 @@ router.get("/projects", async (req: Request, res: Response) => {
     const message = err?.message || err?.name || "Internal server error";
     return res.status(500).json({ message: message, error: err });
   }
-});
+};
 
 /*==================================================================**
  |
@@ -160,7 +160,7 @@ router.get("/projects", async (req: Request, res: Response) => {
  |
  *===================================================================*/
 // TODO Validate
-router.get("/:projectId", ensureAuthentication, async (req: Request, res: Response) => {
+export const getProjectById = async (req: Request, res: Response) => {
   const projectId = parseInt(req.params.projectId);
 
   try {
@@ -190,6 +190,6 @@ router.get("/:projectId", ensureAuthentication, async (req: Request, res: Respon
     const message = err?.message || err?.name || "Internal server error";
     return res.status(500).json({ message: message, error: err });
   }
-});
+};
 
 export default router;

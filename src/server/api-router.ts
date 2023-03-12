@@ -1,7 +1,18 @@
 import express, { NextFunction, Request, Response } from "express";
-import authRouter from "./routes/auth";
-import projectRouter from "./routes/project";
-import mediaRouter from "./routes/media";
+import { validate } from "express-yup";
+import {
+  confirmUserAccountFromEmailToken,
+  getUserCredentials,
+  loginUser,
+  logoutUser,
+  refreshUserPermission,
+  registerUser,
+  resendVerificationToUserEmail
+} from "./routes/auth";
+import { createNewProject, getProjectById, getRecentProjects } from "./routes/project";
+import { attachMediaToProject } from "./routes/media";
+import { ensureAuthentication, ensureLogout } from "./middlewareFunctions/auth-middleware";
+import { createPostRequestSchema } from "../utils/validation-schemas/schema-create-post";
 const router = express.Router();
 
 // Logger to console log all api routes called;
@@ -12,8 +23,22 @@ router.use("*", (req: Request, res: Response, next: NextFunction) => {
   }
   next();
 });
-router.use("/auth", authRouter);
-router.use("/project", projectRouter);
-router.use("/media", mediaRouter);
+
+// Auth routes
+router.get("/auth/credentials", getUserCredentials);
+router.get("/auth/refresh-perms", refreshUserPermission);
+router.post("/auth/register", ensureLogout, registerUser);
+router.get("/auth/register-confirm/:token", confirmUserAccountFromEmailToken);
+router.post("/auth/resend-verification", resendVerificationToUserEmail);
+router.post("/auth/login", loginUser);
+router.get("/auth/logout", logoutUser);
+
+// Project routes
+router.post("/project/create", ensureAuthentication, validate(createPostRequestSchema), createNewProject);
+router.get("/project/projects", getRecentProjects);
+router.get("/project/:projectId", ensureAuthentication, getProjectById);
+
+// Media routes
+router.post("/media/attach", attachMediaToProject);
 
 export default router;

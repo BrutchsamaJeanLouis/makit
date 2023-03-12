@@ -19,11 +19,11 @@ import { loginRequestValidation } from "../../utils/validation-schemas/schema-lo
 import dayjs from "dayjs";
 const router = express.Router();
 
-router.get("/credentials", async (req: Request, res: Response, next: NextFunction) => {
+export const getUserCredentials = async (req: Request, res: Response, next: NextFunction) => {
   return res.json(req.session.user || null);
-});
+};
 
-router.get("/refresh-perms", async (req: Request, res: Response) => {
+export const refreshUserPermission = async (req: Request, res: Response) => {
   try {
     if (!req.session.user) {
       return res.json({ result: "success" });
@@ -46,14 +46,14 @@ router.get("/refresh-perms", async (req: Request, res: Response) => {
   } catch (err) {
     return res.status(500).json({ message: "Server failure", error: err });
   }
-});
+};
 
 /*==================================================================**
  |
  |              POST          /auth/register
  |
  *===================================================================*/
-router.post("/register", ensureLogout, async (req: Request, res: Response) => {
+export const registerUser = async (req: Request, res: Response) => {
   const isValidRequest = registerRequestValidation(req);
   if (!isValidRequest) {
     return res.redirect("/register/?error=invalid request");
@@ -123,14 +123,14 @@ router.post("/register", ensureLogout, async (req: Request, res: Response) => {
       }
     }
   );
-});
+};
 
 /*==================================================================**
  |
  |              GET          /auth/register-confirm /:token
  |
  *===================================================================*/
-router.get("/register-confirm/:token", async (req, res) => {
+export const confirmUserAccountFromEmailToken = async (req, res) => {
   const { token } = req.params;
   if (!token || typeof token !== "string") {
     return res.redirect("/register?error=invalid request");
@@ -160,7 +160,7 @@ router.get("/register-confirm/:token", async (req, res) => {
     // res.status(400).json({ error: 'Invalid verification link -t' })
     return res.redirect(`/register-confirm?error=Verification failed ${error}`);
   }
-});
+};
 
 /*==================================================================**
  |
@@ -168,7 +168,7 @@ router.get("/register-confirm/:token", async (req, res) => {
  |
  *===================================================================*/
 // TODO Rate Limiter To prevent Spam
-router.post("/resend-verification", async (req, res) => {
+export const resendVerificationToUserEmail = async (req: Request, res: Response) => {
   const email = req.body.email;
   if (!email || typeof email !== "string") {
     return res.redirect("/register?error=invalid request");
@@ -210,14 +210,14 @@ router.post("/resend-verification", async (req, res) => {
       }
     }
   );
-});
+};
 
 /*==================================================================**
  |
  |               POST         /auth/Login
  |
  *===================================================================*/
-router.post("/login", async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
   const isValidRequest = loginRequestValidation(req);
   if (!isValidRequest) {
     return res.redirect("/login/?error=invalid request");
@@ -276,20 +276,20 @@ router.post("/login", async (req: Request, res: Response) => {
     console.log(error);
     return res.status(500).redirect(`/login?error=${error}"`);
   }
-});
+};
 
 /*==================================================================**
  |
  |              GET          /auth/Logout
  |
  *===================================================================*/
-router.get("/logout", (req: Request, res: Response) => {
+export const logoutUser = (req: Request, res: Response) => {
   if (!req.session.user) {
     return res.redirect("/");
   }
   const username = req.session.user?.username;
   req.session.destroy(() => console.log(`${username} has logged out`));
   return res.redirect("/");
-});
+};
 
 export default router;

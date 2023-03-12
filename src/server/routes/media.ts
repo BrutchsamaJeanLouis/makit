@@ -19,7 +19,7 @@ const s3Bucket = new S3({
  |              POST          /media/attach
  |
  *===================================================================*/
-router.post("/attach", async (req: Request, res: Response) => {
+export const attachMediaToProject = async (req: Request, res: Response) => {
   const { projectId = 1, files } = req.body;
   const successUploadResult = [];
   const location = path.resolve(__dirname, "./image.png");
@@ -49,7 +49,7 @@ router.post("/attach", async (req: Request, res: Response) => {
   return res.status(200).json({
     successUploadResult
   });
-});
+};
 
 /*==================================================================**
  |
