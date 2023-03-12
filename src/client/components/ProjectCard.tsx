@@ -5,7 +5,6 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
-import "./ProjectCard.css";
 
 // const optionsPopover = (props) => {
 //   return (
@@ -23,17 +22,35 @@ type ProjectCardProp = {
   editable?: boolean;
 };
 
-export default function Projectcard({ project, editable = false }: ProjectCardProp) {
+function randColor() {
+  var letters = "BCDEF".split("");
+  var color = "#";
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * letters.length)];
+  }
+  return color;
+}
+
+export default function ProjectCard({ project, editable = false }: ProjectCardProp) {
   const navigateToPage = useNavigate();
   const [showOptions, setShowOptions] = useState(false);
+  const [userCircleColor] = useState(randColor());
 
   const { User } = project;
+
+  const styles = {
+    userCircle: {
+      backgroundColor: userCircleColor
+    }
+  };
 
   return (
     <div className="project-card col-md-3 w-100 my-3">
       <div className="card mb-3">
         <h5 className="card-header">
-          <div className="rounded-circle bg-secondary user-circle">{User.username.charAt(0).toUpperCase()}</div>
+          <div style={styles.userCircle} className="rounded-circle user-circle">
+            {User.username.charAt(0).toUpperCase()}
+          </div>
           <div className="post-user" style={{ display: "inline-block" }}>
             {User.username}
             <p style={{ fontSize: "0.7em" }}>{project.createdAt.toString()}</p>

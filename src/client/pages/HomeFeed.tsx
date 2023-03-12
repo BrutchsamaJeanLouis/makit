@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import Projectcard from "../components/ProjectCard";
+import ProjectCard from "../components/ProjectCard";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Project from "../../database/models/project";
@@ -50,7 +50,7 @@ const HomeFeed = props => {
           </div>
           {/* List of Projects */}
           {projects.map((project, index) => (
-            <Projectcard key={index} project={project} />
+            <ProjectCard key={index} project={project} />
           ))}
         </div>
       </div>

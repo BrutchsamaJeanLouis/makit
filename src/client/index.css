@@ -20,6 +20,10 @@ body {
   background-color: #ec5f5f;
 }
 
+.palette-yellow {
+  background-color: #ffd05b;
+}
+
 .palette-pink-text {
   color: #ec5f5f;
 }
@@ -37,6 +41,18 @@ body {
 
 .point {
   cursor: pointer;
+}
+
+.user-circle {
+  position: relative;
+  background-color: grey;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+  line-height: 200%;
+  text-align: center;
+  margin-right: 10px;
 }
 /*________________ Global Styles (End)________________*/
 

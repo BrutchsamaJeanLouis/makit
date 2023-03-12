@@ -51,12 +51,10 @@ const ViewProject = (props: any) => {
   };
 
   return (
-    <div className="view-project col-lg-12" style={{ margin: "10px" }}>
+    <div className="view-project col-lg-8 mx-auto" style={{ margin: "10px" }}>
       <div className="card mb-3">
         <h5 className="card-header">
-          <div className="user-circle-post" style={{ color: "white" }}>
-            {project.User.username.charAt(0).toUpperCase()}
-          </div>
+          <div className="rounded-circle bg-secondary user-circle">{project.User.username.charAt(0).toUpperCase()}</div>
           <div className="post-user" style={{ display: "inline-block" }}>
             {project.User.username}
             <p style={{ fontSize: "0.7em" }}>{project.createdAt.toString()}</p>
@@ -111,10 +109,13 @@ const ViewProject = (props: any) => {
                 </span>
               ))}
           </div>
-          <div className="polls">
+          {/* TODO: polls result is currently dummy data */}
+          <div className="polls mx-auto pt-5" style={{ maxWidth: "550px" }}>
             {project.Polls?.map((poll, i) => (
-              <div key={i} className="card" style={{ width: "18rem;" }}>
-                <div className="card-header">{poll.question}</div>
+              <div key={i} className="card mb-3" style={{ width: "18rem;" }}>
+                <div className="card-header" style={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}>
+                  {poll.question}
+                </div>
                 <div className="card-body">
                   {poll?.PollChoices?.map((choice, i) => (
                     <div key={i}>

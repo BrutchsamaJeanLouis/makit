@@ -352,7 +352,6 @@ const CreatePost = props => {
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
-              {/* TODO Validate HTML before consuming it make sure its safe */}
               {/* TODO Preview is broken prob because of display block */}
               <SimpleMDE
                 className={`mt-5 markdown-editor ${isUploadingImage && "invisible"}`}
@@ -361,6 +360,8 @@ const CreatePost = props => {
                 onSubmit={() => null}
                 onSubmitCapture={() => null}
                 onChange={(value: string, changeObj) => {
+                  // checking if onchange contain binary blob
+                  // meaning it is an image or video
                   const files = changeObj?.text.filter(t => t.includes("blob:"));
                   if (files?.length && files.length > 0) {
                     console.log("inserting a file");
@@ -387,9 +388,10 @@ const CreatePost = props => {
               />
               ;
             </div>
-            <div className="card-footer polls">
+            <div id="polls-wrapper" className="card-footer polls">
               {/* TODO remove polls */}
               <button
+                id="add-pool-btn"
                 className="btn btn-secondary float-end mb-3"
                 // onClick={() => setFieldValue("polls", [...values.polls, cloneDeep(POLLDEFAULTS)])}
                 onClick={() => addPool(values.polls, setFieldValue)}
@@ -406,6 +408,7 @@ const CreatePost = props => {
                     </div>
                   ))}
                   <button
+                    id="add-choice-btn"
                     className="btn-sm btn-secondary px-1 py-0 mt-2"
                     onClick={() => addPollChoice(values.polls, i, setFieldValue)}
                   >

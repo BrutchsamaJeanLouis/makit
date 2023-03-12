@@ -118,7 +118,7 @@ function Navbar() {
           {/* <!-- Action --> */}
           {!user && (
             <div className="d-flex align-items-lg-center mt-lg-0">
-              <a href="/register" className="btn btn-sm btn-primary w-full w-lg-auto">
+              <a href="/register" className="btn btn-sm w-full w-lg-auto palette-yellow">
                 Register
               </a>
             </div>
