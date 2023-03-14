@@ -10,7 +10,7 @@ import {
   resendVerificationToUserEmail
 } from "./routes/auth";
 import { createNewProject, getProjectById, getRecentProjects, updateProjectDescriptionById } from "./routes/project";
-import { attachMediaToProject } from "./routes/media";
+import { attachMediaToProject, getMediaFromS3Bucket } from "./routes/media";
 import { ensureAuthentication, ensureLogout } from "./middlewareFunctions/auth-middleware";
 import { createPostRequestSchema } from "../utils/validation-schemas/schema-create-post";
 import multer from "multer";
@@ -44,5 +44,6 @@ router.put("/project/:projectId", ensureAuthentication, updateProjectDescription
 
 // Media routes
 router.post("/media/attach", ensureAuthentication, uploadMemory.any(), attachMediaToProject);
+router.get("/media/:userId/:projectId/:filename", getMediaFromS3Bucket);
 
 export default router;

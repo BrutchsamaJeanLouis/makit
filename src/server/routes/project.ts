@@ -198,7 +198,7 @@ export const getProjectById = async (req: Request, res: Response) => {
  |
  *===================================================================*/
 export const updateProjectDescriptionById = async (req: Request, res: Response) => {
-  // TODO ensure user own project
+  // TODO ensure user owns project
   const { projectId } = req.params;
   const { description } = req.body;
 

@@ -485,7 +485,7 @@ const CreatePost = props => {
             <div className="card-footer">
               <div className="mb-3 float-end">
                 <input
-                  style={{ width: "7em" }}
+                  style={{ width: "6.8em" }}
                   className="form-control"
                   type="file"
                   id="formFileMultiple"
@@ -497,7 +497,6 @@ const CreatePost = props => {
                     values.files = combinedFiles;
                     onchangeDisplayImages(combinedFiles);
                     event.target.value = "";
-                    // console.log('formik file value', values.files)
                   }}
                   multiple
                 />

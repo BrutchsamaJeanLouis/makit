@@ -21,7 +21,7 @@ const s3Bucket = new S3({
  |
  *===================================================================*/
 export const attachMediaToProject = async (req: Request, res: Response) => {
-  // TODO ensure user own project
+  // TODO ensure user owns project
   const { projectId } = req.body;
   const files = req.files ?? [];
   const successUploadResult: any[] = [];
@@ -60,14 +60,16 @@ export const attachMediaToProject = async (req: Request, res: Response) => {
       })
       .promise()
       .then(async (val: S3.ManagedUpload.SendData) => {
+        const domain = process.env.BASE_URL;
         const mediaType = currentFile.mimetype.split("/")[0];
         const format = currentFile.mimetype.split("/")[1];
+        const mediaURl = `${domain}/api/media/${val.Key}`;
 
         await Media.create({
           mediaType: mediaType,
           mediaFormat: format,
           s3BucketKey: val.Key,
-          mediaUrl: val.Location,
+          mediaUrl: mediaURl,
           projectId: projectId
         });
 
@@ -87,27 +89,24 @@ export const attachMediaToProject = async (req: Request, res: Response) => {
 
 /*==================================================================**
  |
- |              POST          /media/get
+ |              GET          /media/:userId/:projectId/:filename
  |
  *===================================================================*/
-router.post("/get", async (req: Request, res: Response) => {
-  const { s3Key } = req.body;
-  router.get("/:userId/:itemId/:imageFileName", async (req, res) => {
-    // todo change to srurl(Localhost:498) and key
-    const img = path.resolve(`./local-uploads/${req.params.userId}/${req.params.itemId}/${req.params.imageFileName}`);
-    try {
-      if (fs.existsSync(img)) {
-        console.log("requested local file exists");
-        fs.createReadStream(img).pipe(res);
-      } else {
-        return res.status(404).send();
-      }
-    } catch (err) {
-      return res.status(500).send();
-    }
 
-    return res.type("image").send();
-  });
-});
+export const getMediaFromS3Bucket = async (req: Request, res: Response) => {
+  // TODO ensure user can view the image before sending
+  const { userId, projectId, filename } = req.params;
+  const s3Key = `${userId}/${projectId}/${filename}`;
+  try {
+    const awsReqParams = { Bucket: String(process.env.AWS_S3_BUCKET_NAME), Key: s3Key };
+    const fileStream = s3Bucket.getObject(awsReqParams).createReadStream();
+
+    await fileStream.pipe(res);
+  } catch (err) {
+    return res.status(500).send();
+  }
+
+  // return res.type("image").send();
+};
 
 export default router;
