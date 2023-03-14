@@ -192,4 +192,29 @@ export const getProjectById = async (req: Request, res: Response) => {
   }
 };
 
+/*==================================================================**
+ |
+ |              PUT          /project/:projectid
+ |
+ *===================================================================*/
+export const updateProjectDescriptionById = async (req: Request, res: Response) => {
+  // TODO ensure user own project
+  const { projectId } = req.params;
+  const { description } = req.body;
+
+  try {
+    await Project.update(
+      {
+        description: description
+      },
+      { where: { id: projectId } }
+    );
+
+    return res.json({ message: "success" });
+  } catch (err: any) {
+    const message = err?.message || err?.name || "Internal server error";
+    return res.status(500).json({ message: message, error: err });
+  }
+};
+
 export default router;

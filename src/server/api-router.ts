@@ -9,10 +9,13 @@ import {
   registerUser,
   resendVerificationToUserEmail
 } from "./routes/auth";
-import { createNewProject, getProjectById, getRecentProjects } from "./routes/project";
+import { createNewProject, getProjectById, getRecentProjects, updateProjectDescriptionById } from "./routes/project";
 import { attachMediaToProject } from "./routes/media";
 import { ensureAuthentication, ensureLogout } from "./middlewareFunctions/auth-middleware";
 import { createPostRequestSchema } from "../utils/validation-schemas/schema-create-post";
+import multer from "multer";
+const memStorage = multer.memoryStorage();
+const uploadMemory = multer({ storage: memStorage });
 const router = express.Router();
 
 // Logger to console log all api routes called;
@@ -37,8 +40,9 @@ router.get("/auth/logout", logoutUser);
 router.post("/project/create", ensureAuthentication, validate(createPostRequestSchema), createNewProject);
 router.get("/project/projects", getRecentProjects);
 router.get("/project/:projectId", ensureAuthentication, getProjectById);
+router.put("/project/:projectId", ensureAuthentication, updateProjectDescriptionById);
 
 // Media routes
-router.post("/media/attach", attachMediaToProject);
+router.post("/media/attach", ensureAuthentication, uploadMemory.any(), attachMediaToProject);
 
 export default router;

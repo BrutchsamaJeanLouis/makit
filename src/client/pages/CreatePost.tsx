@@ -20,6 +20,8 @@ const POLLDEFAULTS = {
   choices: ["yes", "no"]
 };
 
+const axiosConfig = { headers: { "Content-Type": "multipart/form-data" } };
+
 type FormikSetter = (fieldName: string, data: any) => void;
 
 const CreatePost = props => {
@@ -38,10 +40,26 @@ const CreatePost = props => {
       const projectId = projectResponse!.data.newProject.id;
       // attempting to upload and attach media
       // then transform preview to real markdown;
-      const reqBody = { projectId: projectId, files: Object.assign({}, formData.files) };
+      const mediaReqBody = { projectId: projectId, files: formData.files };
       const mediaResponse = await axios
-        .post("/api/media/attach", reqBody)
-        .catch((err: AxiosError) => console.log("error /api/media/attach", err.response!.data));
+        .post("/api/media/attach", mediaReqBody, axiosConfig)
+        .catch((err: AxiosError) => console.log("error POST /api/media/attach", err.response!.data));
+
+      if (mediaResponse!.data?.length > 0) {
+        let description: string = formData.description;
+
+        mediaResponse!.data.forEach((d, i) => {
+          if (!description.includes(fileBlobRef[i])) return;
+          description = description.replace(fileBlobRef[i], d.mediaUrl);
+        });
+
+        // at this point our description is update with s3 file url and we need to send that to the Database
+        await axios.put(`/api/project/${projectId}`, { description: description }).catch((err: AxiosError) => {
+          console.log("error PUT /api/project/:projectId", err.response!.data);
+          return;
+        });
+        console.log("description", description);
+      }
     }
 
     console.log("success /api/project/create", projectResponse!.data);
