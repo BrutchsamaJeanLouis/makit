@@ -14,6 +14,7 @@ import "easymde/dist/easymde.min.css";
 import DOMPurify from "dompurify";
 import htmlSanitizeConfig from "../../utils/htmlSanitizeConfig";
 import { PollType } from "../../../types/data-types";
+import Project from "../../database/models/project";
 
 const POLLDEFAULTS = {
   question: "Enter your poll question",
@@ -37,10 +38,12 @@ const CreatePost = props => {
       return;
     });
     if (projectResponse!.data.newProject && formData.files.length > 0) {
-      const projectId = projectResponse!.data.newProject.id;
+      const project: Project = projectResponse!.data.newProject;
       // attempting to upload and attach media
       // then transform preview to real markdown;
-      const mediaReqBody = { projectId: projectId, files: formData.files };
+      const projectStr = JSON.stringify(projectResponse!.data.newProject);
+      const mediaReqBody = { projectStr: projectStr, files: formData.files };
+      console.log(mediaReqBody);
       const mediaResponse = await axios
         .post("/api/media/attach", mediaReqBody, axiosConfig)
         .catch((err: AxiosError) => console.log("error POST /api/media/attach", err.response!.data));
@@ -54,7 +57,7 @@ const CreatePost = props => {
         });
 
         // at this point our description is update with s3 file url and we need to send that to the Database
-        await axios.put(`/api/project/${projectId}`, { description: description }).catch((err: AxiosError) => {
+        await axios.put(`/api/project/${project.id}`, { description: description }).catch((err: AxiosError) => {
           console.log("error PUT /api/project/:projectId", err.response!.data);
           return;
         });
@@ -309,7 +312,11 @@ const CreatePost = props => {
             <div className="card-body" style={{ borderTopRightRadius: "50px" }}>
               <div className="tags py-2 ps-4 mb-2 fs-5 bg-white rounded-pill">
                 <span style={{ fontSize: "1.1rem" }}>Hashtags:</span>
-                {/* List of hashtags forEach */}
+                {/* 
+                  TODO When enter key is hit when creating a hashtag new poll is created... weird?
+                  
+                  List of hashtags forEach 
+                */}
                 {values.tags.map((tagValue, i) => (
                   <span key={i} className="badge rounded-pill palette-pink mx-1">
                     {tagValue}
@@ -388,6 +395,7 @@ const CreatePost = props => {
                 }}
                 onDropCapture={e => {
                   // TODO check for video and check for image
+                  // TODO add the file at right part instead if at the end
                   const fileIndex = e.dataTransfer.getData("file-index");
                   const fileType = e.dataTransfer.getData("file-type");
                   let markdown;

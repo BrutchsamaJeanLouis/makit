@@ -11,7 +11,7 @@ import Location from "../../database/models/location";
 import Fund from "../../database/models/fund";
 import ProjectTenant from "../../database/models/project_tenant";
 import { ProjectVisibility } from "../../utils/enums";
-import canUserViewProject from "../../utils/validation-schemas/canUserViewProject";
+import { canUserViewProject } from "../../utils/validation-schemas/canUserView";
 import { Op } from "sequelize";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
@@ -194,7 +194,7 @@ export const getProjectById = async (req: Request, res: Response) => {
 
 /*==================================================================**
  |
- |              PUT          /project/:projectid
+ |              PUT          /project/:projectId
  |
  *===================================================================*/
 export const updateProjectDescriptionById = async (req: Request, res: Response) => {

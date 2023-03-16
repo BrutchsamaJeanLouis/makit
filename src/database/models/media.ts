@@ -10,7 +10,7 @@ export default class Media extends Model<InferAttributes<Media>, InferCreationAt
   declare mediaFormat: string;
   declare s3BucketKey: string;
   declare mediaUrl: string;
-  declare projectId: string;
+  declare projectId: number;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }

@@ -5,6 +5,8 @@ import fs from "fs";
 import path from "path";
 import { Express } from "express";
 import Media from "../../database/models/media";
+import { canUserViewMedia } from "../../utils/validation-schemas/canUserView";
+import Project from "../../database/models/project";
 const router = express.Router();
 
 const s3Bucket = new S3({
@@ -22,13 +24,14 @@ const s3Bucket = new S3({
  *===================================================================*/
 export const attachMediaToProject = async (req: Request, res: Response) => {
   // TODO ensure user owns project
-  const { projectId } = req.body;
+  const project: Project = JSON.parse(req.body.projectStr);
+  const visibility = project.visibility;
   const files = req.files ?? [];
   const successUploadResult: any[] = [];
   const userId = req.session.user!.id;
 
   // @ts-ignore
-  const validFiles = Number(files.length) > 0 ? files.filter(f => f && f.size > 2099999).length === 0 : true;
+  const validFiles = Number(files.length) > 0 ? files.filter(f => f && f.size > 10485760).length === 0 : true;
 
   if (!validFiles) {
     return res.status(400).json({ message: "one or more files exceeded the size limit" });
@@ -37,7 +40,7 @@ export const attachMediaToProject = async (req: Request, res: Response) => {
   for (let i = 0; i < Number(files.length); i++) {
     const currentFile: Express.Multer.File = files[i];
     const filename = `${new Date().getTime()}_${currentFile.originalname}`;
-    const s3Key = `${userId}/${projectId}/${filename}`;
+    const s3Key = `${visibility}/${userId}/${project.id}/${filename}`;
 
     await s3Bucket
       .upload(
@@ -70,12 +73,12 @@ export const attachMediaToProject = async (req: Request, res: Response) => {
           mediaFormat: format,
           s3BucketKey: val.Key,
           mediaUrl: mediaURl,
-          projectId: projectId
+          projectId: project.id
         });
 
         successUploadResult.push({
           s3Key: val.Key,
-          mediaUrl: val.Location,
+          mediaUrl: mediaURl,
           type: mediaType,
           format: format
         });
@@ -95,18 +98,27 @@ export const attachMediaToProject = async (req: Request, res: Response) => {
 
 export const getMediaFromS3Bucket = async (req: Request, res: Response) => {
   // TODO ensure user can view the image before sending
-  const { userId, projectId, filename } = req.params;
-  const s3Key = `${userId}/${projectId}/${filename}`;
+  const { visibility, filename } = req.params;
+  const userId = Number(req.params.userId);
+  const projectId = Number(req.params.projectId);
+  const canView = canUserViewMedia(visibility, projectId, userId, req.session);
+
+  if (!canView) {
+    return res.status(401).json({ message: "unauthorized" });
+  }
+
+  const s3Key = `${visibility}/${userId}/${projectId}/${filename}`;
   try {
     const awsReqParams = { Bucket: String(process.env.AWS_S3_BUCKET_NAME), Key: s3Key };
     const fileStream = s3Bucket.getObject(awsReqParams).createReadStream();
+    fileStream.on("error", (err: Error) => {
+      return res.status(404).json({ message: "file not found", error: err });
+    });
 
     await fileStream.pipe(res);
   } catch (err) {
     return res.status(500).send();
   }
-
-  // return res.type("image").send();
 };
 
 export default router;

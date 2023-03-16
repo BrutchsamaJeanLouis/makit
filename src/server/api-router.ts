@@ -20,8 +20,12 @@ const router = express.Router();
 
 // Logger to console log all api routes called;
 router.use("*", (req: Request, res: Response, next: NextFunction) => {
+  // If it is an image or video or static asset we will ignore url log
+  // will log too many times 1 page can load multiple images
+  const isAsset = req.rawHeaders.filter(h => h.includes("image") || h.includes("video")).length > 0;
+
   // "/api/auth/credentials & refresh-perms is called too many times"
-  if (req.originalUrl !== "/api/auth/credentials" && req.originalUrl !== "/api/auth/refresh-perms") {
+  if (!isAsset && req.originalUrl !== "/api/auth/credentials" && req.originalUrl !== "/api/auth/refresh-perms") {
     console.log(req.method, req.originalUrl);
   }
   next();
@@ -44,6 +48,6 @@ router.put("/project/:projectId", ensureAuthentication, updateProjectDescription
 
 // Media routes
 router.post("/media/attach", ensureAuthentication, uploadMemory.any(), attachMediaToProject);
-router.get("/media/:userId/:projectId/:filename", getMediaFromS3Bucket);
+router.get("/media/:visibility/:userId/:projectId/:filename", getMediaFromS3Bucket);
 
 export default router;
