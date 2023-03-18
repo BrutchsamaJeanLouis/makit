@@ -201,7 +201,9 @@ async function createServer(isProd = process.env.NODE_ENV === "production") {
   });
   const port = process.env.SERVER_PORT || 8080;
   app.listen(Number(port), "0.0.0.0", () => {
-    console.log(`App is listening on http://localhost:${port} with environment >> ${process.env.NODE_ENV}`);
+    console.log(
+      `\x1b[43m \x1b[30m App is listening on http://localhost:${port} with environment >> ${process.env.NODE_ENV}\x1b[0m `
+    );
   });
 }
 

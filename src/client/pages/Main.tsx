@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import Footer from "../components/Footer";
 import { useAppContext } from "../Context";
 import { Route, Routes } from "react-router-dom";
@@ -18,11 +18,13 @@ import axios from "axios";
 import ViewProject from "./ViewProject";
 import { LoadingSpinnerWholePage } from "../components/LoadingSpinners";
 import HomeFeed from "./HomeFeed";
+import CookieConsentModal from "../components/CookieConsentModal";
 const threeMinute = 180000;
 
 const Main = () => {
   const { name, setName } = useAppContext();
   const [loadingCredentials, setLoadingCredentials] = useState(true);
+  const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   useEffect(() => {
     verifyAuthState()
@@ -39,6 +41,11 @@ const Main = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const consent = window && window.sessionStorage.getItem("makit_cookie_consent");
+    if (!consent) setShowCookieConsent(true);
+  }, []);
+
   if (loadingCredentials) {
     return <LoadingSpinnerWholePage />;
   }
@@ -46,6 +53,7 @@ const Main = () => {
   return (
     <div className="d-flex flex-column" style={{ minHeight: "95vh" }}>
       <Navbar />
+      {showCookieConsent && <CookieConsentModal />}
       <section className="container-fluid" style={{ flex: 1 }}>
         <div className="row">
           <Routes>
@@ -62,15 +70,9 @@ const Main = () => {
           </Routes>
         </div>
       </section>
-
       <Footer />
     </div>
   );
 };
-{
-  /* <Route path="/project">
-      <Route path=":projectId" element={<div>Item Number</div>} />
-    </Route> */
-}
 
 export default connect()(Main);
