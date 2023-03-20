@@ -57,7 +57,7 @@ const HomeFeed = props => {
       {/* side view only desktops */}
       <div className="col-md-3 d-none d-lg-flex">
         <div className="card" style={{ minHeight: "70vh" }}>
-          <div className="card-body">This is some text within a card body.</div>
+          <div className="card-body fs-5">Recommendations, highlights, trending projects & ads</div>
         </div>
       </div>
     </div>

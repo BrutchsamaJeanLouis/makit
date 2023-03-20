@@ -5,6 +5,7 @@ import ProjectTenant from "./project_tenant";
 import { ProjectPhase, ProjectVisibility } from "../../utils/enums";
 import ProjectHashTag from "./project_hashtag";
 import Poll from "./poll";
+import Comment from "./comment";
 
 // for typeScript typing
 export default class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Project>> {
@@ -20,6 +21,7 @@ export default class Project extends Model<InferAttributes<Project>, InferCreati
   declare ProjectTenants: CreationOptional<ProjectTenant>;
   declare ProjectHashTags: CreationOptional<ProjectHashTag[]>;
   declare Polls: CreationOptional<Poll[]>;
+  declare Comments: CreationOptional<Comment[]>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }

@@ -53,7 +53,7 @@ const ViewProject = (props: any) => {
   return (
     <div className="view-project col-lg-8 mx-auto" style={{ margin: "10px" }}>
       <div className="card mb-3">
-        <h5 className="card-header">
+        <h5 className="card-header bg-white">
           <div className="rounded-circle bg-secondary user-circle">{project.User.username.charAt(0).toUpperCase()}</div>
           <div className="post-user" style={{ display: "inline-block" }}>
             {project.User.username}

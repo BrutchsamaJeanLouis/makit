@@ -46,8 +46,8 @@ export default function ProjectCard({ project, editable = false }: ProjectCardPr
 
   return (
     <div className="project-card col-md-3 w-100 my-3">
-      <div className="card mb-3">
-        <h5 className="card-header">
+      <div className="card mb-3 pt-3">
+        <h5 className="card-header bg-white">
           <div style={styles.userCircle} className="rounded-circle user-circle">
             {User.username.charAt(0).toUpperCase()}
           </div>
@@ -62,7 +62,7 @@ export default function ProjectCard({ project, editable = false }: ProjectCardPr
           )}
         </h5>
         <div
-          className="card-body point"
+          className="card-body point px-5"
           style={{ borderTopRightRadius: "50px" }}
           onClick={() => navigateToPage(`/view-project/${project.id}`)}
         >
@@ -76,7 +76,7 @@ export default function ProjectCard({ project, editable = false }: ProjectCardPr
             Read more
           </button>
         </div>
-        <div className="card-footer">
+        <div className="card-footer bg-white">
           <div className="float-end">
             <i className="bi bi-chat-left-dots" style={{ fontSize: "20px", marginRight: "10px", cursor: "pointer" }} />
             <i className="bi bi-hand-thumbs-up" style={{ fontSize: "20px", marginRight: "10px", cursor: "pointer" }} />

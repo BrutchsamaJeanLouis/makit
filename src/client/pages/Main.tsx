@@ -51,7 +51,7 @@ const Main = () => {
   }
 
   return (
-    <div className="d-flex flex-column" style={{ minHeight: "95vh" }}>
+    <div className="d-flex flex-column bg-light" style={{ minHeight: "95vh" }}>
       <Navbar />
       {showCookieConsent && <CookieConsentModal />}
       <section className="container-fluid" style={{ flex: 1 }}>
@@ -64,6 +64,7 @@ const Main = () => {
             <Route path={RoutesEnum.REGISTER} element={<RequireLogout view={<Register />} />} />
             <Route path={RoutesEnum.LOGIN} element={<RequireLogout view={<Login />} />} />
             <Route path="/list-project" element={<RequireLogin view={<CreatePost />} />} />
+            <Route path="/my-profile" element={<RequireLogin view={<MyProfile />} />} />
             <Route path={RoutesEnum.MYPROFILE} element={<RequireLogin view={<MyProfile />} />} />
             <Route path="/view-project/:projectId" element={<RequireLogin view={<ViewProject />} />} />
             <Route path="*" element={<p>Theres nothing here: 404!</p>} />
