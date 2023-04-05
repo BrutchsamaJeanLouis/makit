@@ -279,7 +279,7 @@ module.exports = {
 
     try {
       await queryInterface.bulkInsert(
-        "ratings",
+        "project_likes_dislikes",
         [
           // each row is a JSON object
           {
@@ -335,7 +335,7 @@ module.exports = {
       );
     } catch (err) {
       // @ts-ignore
-      console.log("Error occured while bulk insert ratings", err?.original?.message);
+      console.log("Error occured while bulk insert project_likes_dislikes", err?.original?.message);
     }
 
     try {

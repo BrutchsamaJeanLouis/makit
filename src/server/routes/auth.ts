@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../../database/models/user";
 import Project from "../../database/models/project";
-import Rating from "../../database/models/rating";
+import ProjectLikeDislike from "../../database/models/project_like_dislike";
 import Comment from "../../database/models/comment";
 import Location from "../../database/models/location";
 import Media from "../../database/models/media";

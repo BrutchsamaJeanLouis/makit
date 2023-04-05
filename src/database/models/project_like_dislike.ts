@@ -4,7 +4,10 @@ import User from "./user";
 import sequelize from "../sequelize-connection";
 
 // for typeScript typing
-export default class Rating extends Model<InferAttributes<Rating>, InferCreationAttributes<Rating>> {
+export default class ProjectLikeDislike extends Model<
+  InferAttributes<ProjectLikeDislike>,
+  InferCreationAttributes<ProjectLikeDislike>
+> {
   // Only Used for typescript to pick up intellisense and types
   // The Init function below are the actual DB columns
   declare id: CreationOptional<number>;
@@ -14,7 +17,7 @@ export default class Rating extends Model<InferAttributes<Rating>, InferCreation
 }
 
 // allowNull defaults to true if not set
-Rating.init(
+ProjectLikeDislike.init(
   // @ts-ignore
   {
     // Model attributes are defined here
@@ -31,12 +34,12 @@ Rating.init(
   {
     // Other model options
     sequelize,
-    tableName: "ratings",
+    tableName: "project_likes_dislikes",
     timestamps: true,
-    modelName: "Rating"
+    modelName: "ProjectLikeDislike"
   }
 );
 
-Project.hasMany(Rating, { foreignKey: "projectID" });
+Project.hasMany(ProjectLikeDislike, { foreignKey: "projectID" });
 
-Rating.belongsTo(User, { foreignKey: "userId" });
+ProjectLikeDislike.belongsTo(User, { foreignKey: "userId" });

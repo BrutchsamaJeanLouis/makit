@@ -30,7 +30,7 @@ async function initialiseModels() {
       "location.ts",
       "media.ts",
       "fund.ts",
-      "rating.ts",
+      "project_like_dislike.ts",
       "hashtag.ts",
       "project_hashtag.ts",
       "poll.ts",

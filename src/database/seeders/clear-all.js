@@ -16,7 +16,7 @@ module.exports = {
       await queryInterface.bulkDelete("comments", { id: { [Op.not]: 0 } });
       await queryInterface.bulkDelete("media", { id: { [Op.not]: 0 } });
       await queryInterface.bulkDelete("funds", { id: { [Op.not]: 0 } });
-      await queryInterface.bulkDelete("ratings", { id: { [Op.not]: 0 } });
+      await queryInterface.bulkDelete("project_likes_dislikes", { id: { [Op.not]: 0 } });
       await queryInterface.bulkDelete("locations", { id: { [Op.not]: 0 } });
       await queryInterface.bulkDelete("projects", { id: { [Op.not]: 0 } });
       await queryInterface.bulkDelete("users", { id: { [Op.not]: 0 } });

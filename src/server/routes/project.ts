@@ -3,7 +3,7 @@ import { ensureAuthentication } from "../middlewareFunctions/auth-middleware";
 import { validate } from "express-yup";
 import { createPostRequestSchema } from "../../utils/validation-schemas/schema-create-post";
 import Project from "../../database/models/project";
-import Rating from "../../database/models/rating";
+import ProjectLikeDislike from "../../database/models/project_like_dislike";
 import User from "../../database/models/user";
 import Media from "../../database/models/media";
 import Comment from "../../database/models/comment";
@@ -124,7 +124,7 @@ export const getRecentProjects = async (req: Request, res: Response) => {
         },
         include: [
           { model: User },
-          { model: Rating },
+          { model: ProjectLikeDislike },
           { model: Comment },
           { model: Location },
           { model: Media },
@@ -143,7 +143,13 @@ export const getRecentProjects = async (req: Request, res: Response) => {
         where: {
           visibility: ProjectVisibility.PUBLIC
         },
-        include: [{ model: User }, { model: Rating }, { model: Comment }, { model: Location }, { model: Media }],
+        include: [
+          { model: User },
+          { model: ProjectLikeDislike },
+          { model: Comment },
+          { model: Location },
+          { model: Media }
+        ],
         order: [["createdAt", "DESC"]]
       });
       return res.status(200).json({ projects: projects.rows, totalResults: projects.count });
@@ -167,7 +173,7 @@ export const getProjectById = async (req: Request, res: Response) => {
     let project = await Project.findByPk(projectId, {
       include: [
         { model: User },
-        { model: Rating },
+        { model: ProjectLikeDislike },
         { model: Comment },
         { model: Location },
         { model: Media },
