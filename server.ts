@@ -7,10 +7,7 @@ import session from "express-session";
 import compression from "compression";
 import serveStatic from "serve-static";
 import { createServer as createViteServer } from "vite";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
 import { ModelDefined } from "sequelize";
-dayjs.extend(duration);
 
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
 

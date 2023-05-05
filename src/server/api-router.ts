@@ -14,6 +14,7 @@ import { attachMediaToProject, getMediaFromS3Bucket } from "./routes/media";
 import { ensureAuthentication, ensureLogout } from "./middlewareFunctions/auth-middleware";
 import { createPostRequestSchema } from "../utils/validation-schemas/schema-create-post";
 import multer from "multer";
+import dayjs from "dayjs";
 const memStorage = multer.memoryStorage();
 const uploadMemory = multer({ storage: memStorage });
 const router = express.Router();
@@ -26,7 +27,7 @@ router.use("*", (req: Request, res: Response, next: NextFunction) => {
 
   // "/api/auth/credentials & refresh-perms is called too many times"
   if (!isAsset && req.originalUrl !== "/api/auth/credentials" && req.originalUrl !== "/api/auth/refresh-perms") {
-    console.log(req.method, req.originalUrl);
+    console.log(req.method, req.originalUrl, `  --  ${dayjs().format("h:mm a")}`);
   }
   next();
 });

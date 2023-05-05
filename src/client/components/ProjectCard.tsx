@@ -5,6 +5,9 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import axios from "axios";
 
 // const optionsPopover = (props) => {
 //   return (
@@ -37,6 +40,12 @@ export default function ProjectCard({ project, editable = false }: ProjectCardPr
   const [userCircleColor] = useState(randColor());
 
   const { User } = project;
+  const signedInUser = useSelector((root: RootState) => root.auth.user);
+
+  const likeProject = async () => {
+    await axios.post(`/api/like`, { projectId: project.id });
+    // setProjectState("newState");
+  };
 
   const styles = {
     userCircle: {
@@ -78,10 +87,16 @@ export default function ProjectCard({ project, editable = false }: ProjectCardPr
         </div>
         <div className="card-footer bg-white">
           <div className="float-end">
-            <i className="bi bi-chat-left-dots" style={{ fontSize: "20px", marginRight: "10px", cursor: "pointer" }} />
-            <i className="bi bi-hand-thumbs-up" style={{ fontSize: "20px", marginRight: "10px", cursor: "pointer" }} />
             <i
-              className="bi bi-hand-thumbs-down"
+              className="bi bi-chat-left-dots mx-2"
+              style={{ fontSize: "20px", marginRight: "10px", cursor: "pointer" }}
+            />
+            <i
+              className="bi bi-hand-thumbs-up mx-2"
+              style={{ fontSize: "20px", marginRight: "10px", cursor: "pointer" }}
+            />
+            <i
+              className="bi bi-hand-thumbs-down mx-2"
               style={{ fontSize: "20px", marginRight: "10px", cursor: "pointer" }}
             />
           </div>

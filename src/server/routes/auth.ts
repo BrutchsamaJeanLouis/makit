@@ -253,16 +253,16 @@ export const loginUser = async (req: Request, res: Response) => {
     if (foundUser.verified === false) {
       return res.redirect(`/register-confirm?email=${foundUser.email}`);
     }
-    const thirtyDays = 2592000000;
-    const now = dayjs();
+    const thirtyDaysInMS = dayjs().add(30, "day").millisecond();
+    const sixMonthsInMS = dayjs().add(6, "month").millisecond();
     const dBHashedPassword = foundUser.password;
     bcrypt.compare(password, dBHashedPassword, (err, result) => {
       if (result === true) {
         // create a session for user
         const projectsAllowed = foundUser.ProjectTenants.map((p: ProjectTenant) => p.projectId);
         req.session.user = { id: foundUser.id, email: foundUser.email, username: foundUser.username, projectsAllowed };
-        // req.session.cookie.expires = dayjs();
-        // req.session.cookie.maxAge = thirtyDays;
+        // req.session.cookie.expires = dayjs(); // Expires sets an expiry date for when a cookie gets deleted;
+        // req.session.cookie.maxAge = thirtyDays;   //  Max-age sets the time in seconds for when a cookie will be deleted
         console.log(`${foundUser.username} has signed in`);
         // Success redirect
         res.redirect(`${req.session.returnTo || "/"}`);
