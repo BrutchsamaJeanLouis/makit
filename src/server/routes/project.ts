@@ -22,6 +22,7 @@ import Poll from "../../database/models/poll";
 import PollChoice from "../../database/models/poll_choice";
 import PollVote from "../../database/models/poll_vote";
 import { PollType } from "../../../types/data-types";
+import ProjectView from "../../database/models/project_view";
 const router = express.Router();
 
 /*==================================================================**
@@ -221,6 +222,21 @@ export const updateProjectDescriptionById = async (req: Request, res: Response) 
     const message = err?.message || err?.name || "Internal server error";
     return res.status(500).json({ message: message, error: err });
   }
+};
+
+// TODO: Rate limiting
+export const incrementProjectView = async (req: Request, res: Response) => {
+  const visitorId: string = req.body.visitorId;
+  const projectId = Number(req.body.projectId);
+  const ipAddress = req.ip;
+
+  const found = await ProjectView.findOrCreate({
+    defaults: { ipAddress: ipAddress, visitorId: visitorId, projectId: projectId },
+    where: {
+      ipAddress: ipAddress,
+      visitorId: visitorId
+    }
+  });
 };
 
 export default router;

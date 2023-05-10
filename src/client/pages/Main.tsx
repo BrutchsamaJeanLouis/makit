@@ -2,12 +2,13 @@ import React, { useEffect, useMemo } from "react";
 import Footer from "../components/Footer";
 import { useAppContext } from "../Context";
 import { Route, Routes } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import Register from "./Register";
 import Login from "./Login";
 import { RoutesEnum } from "../../utils/enums";
 import RegisterConfirm from "./RegisterConfirm";
 import Navbar from "../components/Navbar";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import RequireLogin from "../components/RequireLogin";
 import CreatePost from "./CreatePost";
 import RequireLogout from "../components/RequireLogout";
@@ -19,9 +20,11 @@ import ViewProject from "./ViewProject";
 import { LoadingSpinnerWholePage } from "../components/LoadingSpinners";
 import HomeFeed from "./HomeFeed";
 import CookieConsentModal from "../components/CookieConsentModal";
+import { setBrowserInfo, setVisitorId } from "../redux/reducers/authReducer";
 const threeMinute = 180000;
 
 const Main = () => {
+  const dispatcher = useDispatch();
   const { name, setName } = useAppContext();
   const [loadingCredentials, setLoadingCredentials] = useState(true);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
@@ -42,8 +45,21 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
+    // Cookie
     const consent = window && window.sessionStorage.getItem("makit_cookie_consent");
     if (!consent) setShowCookieConsent(true);
+
+    // visitor Id (used to track logged out users)
+    let storedVisitorId = window.localStorage.getItem("makit_visitor_id") || "";
+    const newVisitorId = uuidv4();
+    if (!storedVisitorId) storedVisitorId = newVisitorId;
+
+    localStorage.setItem("makit_visitor_id", storedVisitorId);
+    dispatcher(setVisitorId(storedVisitorId));
+
+    // window.navigator.userAgent
+    const browserInfo = window.navigator.userAgent;
+    dispatcher(setBrowserInfo(browserInfo));
   }, []);
 
   if (loadingCredentials) {

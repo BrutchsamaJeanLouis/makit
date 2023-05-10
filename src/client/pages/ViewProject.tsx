@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -16,14 +16,20 @@ const ViewProject = (props: any) => {
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<Project>(ModelHelper.null);
   const [serverError, setServerError] = useState(null);
+  const visitorId = useSelector((rootState: RootState) => rootState.auth.visitorId);
+  const browserInfo = useSelector((rootState: RootState) => rootState.auth.browserInfo);
 
   const user: any = useSelector((reduxState: RootState) => reduxState.auth.user);
   const isOwnerOfProject: boolean = project?.userId === user.id;
 
   const fetchProject = async () => {
-    const response: any = await axios.get(`/api/project/${projectId}`).catch(err => setServerError(err.response.data));
-    response.data.project && setProject(response.data.project);
+    const response: AxiosResponse | void = await axios.get(`/api/project/${projectId}`).catch(err => setServerError(err.response.data));
+    response?.data.project && setProject(response.data.project);
     setLoading(false);
+
+    if (response!.status === 200) {
+      await axios.post(`/api/project/view/${projectId}`, { visitorId: visitorId, browserInfo: browserInfo });
+    }
   };
 
   useEffect(() => {
@@ -109,7 +115,9 @@ const ViewProject = (props: any) => {
                 </span>
               ))}
           </div>
+          <hr />
           {/* TODO: polls result is currently dummy data */}
+          <h5 className="ms-5 pt-3">Voting Polls</h5>
           <div className="polls mx-auto pt-5" style={{ maxWidth: "550px" }}>
             {project.Polls?.map((poll, i) => (
               <div key={i} className="card mb-3" style={{ width: "18rem;" }}>

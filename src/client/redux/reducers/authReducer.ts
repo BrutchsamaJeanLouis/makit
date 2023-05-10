@@ -1,7 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user: null
+  user: null,
+  visitorId: null,
+  browserInfo: null
 };
 
 const authReducer = createSlice({
@@ -10,11 +12,17 @@ const authReducer = createSlice({
   reducers: {
     setSessionUser: (state, action) => {
       state.user = action.payload;
+    },
+    setVisitorId: (state, action) => {
+      state.visitorId = action.payload;
+    },
+    setBrowserInfo: (state, action) => {
+      state.browserInfo = action.payload;
     }
   }
 });
 
 // Action creators are generated for each case reducer function
-export const { setSessionUser } = authReducer.actions;
+export const { setSessionUser, setVisitorId, setBrowserInfo } = authReducer.actions;
 
 export default authReducer.reducer;
