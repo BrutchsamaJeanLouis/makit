@@ -1,7 +1,8 @@
 {
-    "name": "makit",
-    "dockerComposeFile": "docker-compose.yml",
-    "service": "app",
-    "workspaceFolder": "/project-name",
+    "name": "project-name",
+    "build": {
+      "dockerfile": "Dockerfile",
+      "args": {}
+    },
     "forwardPorts": [8080, 5432, 4569, 9001]
-}
+  }
